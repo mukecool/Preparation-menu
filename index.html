@@ -103,6 +103,13 @@ button{font-family:inherit;}
 }
 .primary-btn:hover{filter:brightness(1.08);}
 .primary-btn:active{transform:scale(.97);}
+.primary-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  filter:none;
+  transform:none;
+}
+.primary-btn:disabled:hover{filter:none;}
 @media (max-width:420px){
   .btn-add span{display:none;}
   .btn-add{padding:9px 13px;font-size:16px;}
@@ -689,6 +696,85 @@ select{
   padding:6px 2px 10px;
 }
 
+/* ===================== 调料预设选择 ===================== */
+.preset-grid{
+  display:flex;flex-wrap:wrap;gap:8px;
+  padding:2px 0 4px;
+}
+.preset-chip{
+  padding:9px 16px;
+  border-radius:99px;
+  border:1px solid var(--border);
+  background:var(--card-2);
+  color:var(--text);
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  transition:.15s;
+  -webkit-tap-highlight-color:transparent;
+  white-space:nowrap;
+}
+.preset-chip:hover{border-color:var(--accent);}
+.preset-chip:active{transform:scale(.96);}
+.preset-chip.selected{
+  background:var(--accent);
+  color:#fff;
+  border-color:var(--accent);
+  font-weight:700;
+  box-shadow:0 2px 8px rgba(217,80,43,.3);
+}
+.preset-empty{
+  font-size:13px;color:var(--muted);padding:16px 4px;
+  text-align:center;width:100%;
+}
+
+/* 内联添加行 */
+.inline-add-row{
+  display:flex;gap:8px;align-items:center;
+  flex-wrap:wrap;
+}
+.inline-add-row .name-input{flex:1 1 150px;min-width:0;}
+.inline-add-row select{flex:0 0 auto;width:88px;}
+.inline-add-row button{flex:none;white-space:nowrap;}
+
+/* 预设管理列表 */
+.preset-manage-list{
+  display:grid;gap:8px;
+  max-height:300px;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:2px;
+  margin-bottom:4px;
+}
+.preset-manage-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;
+  background:var(--card-2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  font-size:14px;
+}
+.preset-manage-item .name{
+  flex:1;min-width:0;font-weight:500;
+  word-break:break-all;
+}
+.preset-manage-item .unit{
+  font-size:12px;color:var(--muted);
+  background:var(--card);
+  padding:2px 8px;border-radius:6px;
+  flex:none;
+}
+.preset-manage-item .del{
+  width:30px;height:30px;flex:none;
+  border-radius:8px;border:1px solid var(--border);
+  background:var(--card);color:var(--muted);
+  font-size:12px;cursor:pointer;
+  display:grid;place-items:center;
+  transition:.15s;
+}
+.preset-manage-item .del:hover{
+  color:#d33;border-color:rgba(221,51,51,.4);
+}
+
 /* ===================== 设置弹层专属 ===================== */
 .sync-buttons{
   display:grid;
@@ -879,7 +965,7 @@ select{
         <div class="group-box sea-box">
           <div class="ing-list" id="seaList"></div>
           <div class="group-empty" id="seaEmpty">还没有调料，点下面按钮添加</div>
-          <button type="button" class="ghost-btn full" id="btnAddSea">＋ 添加调料</button>
+          <button type="button" class="ghost-btn full" id="btnAddSea">＋ 从预设中选择</button>
         </div>
       </div>
 
@@ -1000,9 +1086,82 @@ select{
 
     </div>
     <div class="sheet-foot">
-      <button class="ghost-btn" id="btnClearSync" >清除同步设置</button>
+      <button class="ghost-btn" id="btnClearSync">清除同步设置</button>
       <button class="ghost-btn" id="btnCloseSettings2">关闭</button>
       <button class="primary-btn" id="btnSaveSettings">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 调料预设选择弹层 ============ -->
+<div class="overlay" id="seaPickerOverlay" style="z-index:110">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>添加调料</h2>
+      <button class="icon-btn" id="btnCloseSeaPicker" aria-label="关闭">✕</button>
+    </div>
+    <div class="sheet-body">
+
+      <div class="field">
+        <label class="field-label">点击勾选常用调料（可多选）</label>
+        <div class="preset-grid" id="presetGrid"></div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">自定义添加</label>
+        <div class="inline-add-row">
+          <input class="text-input name-input" id="seaCustomName" type="text"
+                 placeholder="调料名称" autocomplete="off">
+          <select class="text-input" id="seaCustomUnit"></select>
+          <button type="button" class="ghost-btn" id="btnAddCustomSea">添加</button>
+        </div>
+        <div class="field-note">
+          点「添加」会立即把自定义调料加入下方清单；勾选的预设调料需点右下角按钮批量加入。
+        </div>
+      </div>
+
+    </div>
+    <div class="sheet-foot">
+      <button class="ghost-btn" id="btnManagePresets">管理预设</button>
+      <span style="flex:1"></span>
+      <button class="ghost-btn" id="btnCancelSeaPicker">取消</button>
+      <button class="primary-btn" id="btnConfirmSeaPicker" disabled>添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 预设管理弹层 ============ -->
+<div class="overlay" id="presetManagerOverlay" style="z-index:120">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>管理调料预设</h2>
+      <button class="icon-btn" id="btnClosePresetMgr" aria-label="关闭">✕</button>
+    </div>
+    <div class="sheet-body">
+
+      <div class="field">
+        <label class="field-label">
+          已有预设
+          <span id="presetCount" style="font-weight:400;opacity:.7"></span>
+        </label>
+        <div class="preset-manage-list" id="presetManageList"></div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">添加新预设</label>
+        <div class="inline-add-row">
+          <input class="text-input name-input" id="presetNewName" type="text"
+                 placeholder="如：花椒" autocomplete="off">
+          <select class="text-input" id="presetNewUnit"></select>
+          <button type="button" class="primary-btn" id="btnAddPreset">添加</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="sheet-foot">
+      <button class="ghost-btn" id="btnResetPresets">恢复默认</button>
+      <span style="flex:1"></span>
+      <button class="primary-btn" id="btnClosePresetMgr2">完成</button>
     </div>
   </div>
 </div>
@@ -1019,6 +1178,7 @@ const STORAGE_KEY    = 'beicai_recipes_v3';
 const LEGACY_KEYS    = ['beicai_recipes_v2', 'beicai_recipes_v1'];
 const FILTER_KEY     = 'beicai_filter_v1';
 const TAG_FILTER_KEY = 'beicai_tag_filter_v1';
+const SEA_PRESETS_KEY = 'beicai_sea_presets_v1';
 
 const GH_TOKEN_KEY   = 'beicai_gh_token';
 const GH_GIST_KEY    = 'beicai_gh_gist_id';
@@ -1038,8 +1198,26 @@ const MODELS = [
 ];
 const UNITS = ['克','毫升','个','瓣','根','片','勺','把','适量'];
 
-const MAX_TAGS      = 8;
-const CARD_TAG_MAX  = 4;
+const MAX_TAGS     = 8;
+const CARD_TAG_MAX = 4;
+
+/* 默认调料预设 */
+const DEFAULT_SEA_PRESETS = [
+  { name:'食用油', unit:'克' },
+  { name:'盐',     unit:'克' },
+  { name:'白糖',   unit:'克' },
+  { name:'生抽',   unit:'勺' },
+  { name:'老抽',   unit:'勺' },
+  { name:'蚝油',   unit:'勺' },
+  { name:'料酒',   unit:'勺' },
+  { name:'醋',     unit:'勺' },
+  { name:'胡椒粉', unit:'克' },
+  { name:'淀粉',   unit:'克' },
+  { name:'香油',   unit:'勺' },
+  { name:'蒜',     unit:'瓣' },
+  { name:'姜',     unit:'片' },
+  { name:'葱',     unit:'根' }
+];
 
 /* ===================== 状态 ===================== */
 let recipes      = [];
@@ -1058,6 +1236,10 @@ const checkStore = {};
 
 let scrollLocks  = 0;
 let autoPushTimer = null;
+
+/* 调料预设 */
+let seaPresets = [];
+let pickerSelected = new Set();
 
 /* 同步状态 */
 const syncState = {
@@ -1126,6 +1308,45 @@ function toast(msg){
 }
 function isSea(i){ return i && i.cat === CAT_SEA; }
 function isIng(i){ return !i || i.cat !== CAT_SEA; }
+
+function fillUnitSelect(sel, current){
+  if (!sel) return;
+  sel.innerHTML = '';
+  UNITS.forEach(u => {
+    const o = document.createElement('option');
+    o.value = u;
+    o.textContent = u;
+    if (u === current) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+/* ===================== 调料预设存储 ===================== */
+function loadSeaPresets(){
+  let raw = null;
+  try { raw = localStorage.getItem(SEA_PRESETS_KEY); } catch(e){}
+
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        seaPresets = parsed
+          .map(p => ({
+            name: String(p && p.name || '').trim().slice(0, 12),
+            unit: (p && p.unit) || '克'
+          }))
+          .filter(p => p.name);
+      }
+    } catch(e){ seaPresets = []; }
+  }
+
+  if (!seaPresets.length) {
+    seaPresets = DEFAULT_SEA_PRESETS.map(p => ({ name: p.name, unit: p.unit }));
+  }
+}
+function persistSeaPresets(){
+  try { localStorage.setItem(SEA_PRESETS_KEY, JSON.stringify(seaPresets)); } catch(e){}
+}
 
 /* ===================== 数据规范化 ===================== */
 function normalizeRecipe(r){
@@ -1319,7 +1540,7 @@ async function gistCreate(){
         }
       })
     });
-    syncState.gistId  = data.id;
+    syncState.gistId   = data.id;
     syncState.lastSync = Date.now();
     persistSyncSettings();
     const inp = $('#sGistId');
@@ -1446,11 +1667,11 @@ function scheduleAutoPush(){
   autoPushTimer = setTimeout(() => { gistPush(true); }, 900);
 }
 
-/* ===================== 设置弹层 打开/关闭 ===================== */
+/* ===================== 设置弹层 ===================== */
 function openSettings(){
-  $('#sToken').value      = syncState.token;
-  $('#sGistId').value     = syncState.gistId;
-  $('#sAutoPush').checked = syncState.autoPush;
+  $('#sToken').value        = syncState.token;
+  $('#sGistId').value       = syncState.gistId;
+  $('#sAutoPush').checked   = syncState.autoPush;
   $('#sPullOnLoad').checked = syncState.pullOnLoad;
   refreshSyncStatus();
   $('#settingsOverlay').classList.add('open');
@@ -1488,7 +1709,7 @@ function collectTags(){
 }
 
 function renderTagBar(){
-  const tags = collectTags();
+  const tags  = collectTags();
   const bar   = $('#tagBar');
   const inner = $('#tagBarInner');
 
@@ -1818,6 +2039,217 @@ function onIngField(e){
   }
 }
 
+/* ===================== 调料选择弹层 ===================== */
+function openSeaPicker(){
+  pickerSelected.clear();
+  fillUnitSelect($('#seaCustomUnit'), '克');
+  $('#seaCustomName').value = '';
+  renderSeaPicker();
+  updatePickerCount();
+  $('#seaPickerOverlay').classList.add('open');
+  lockScroll();
+}
+
+function closeSeaPicker(){
+  $('#seaPickerOverlay').classList.remove('open');
+  unlockScroll();
+}
+
+function renderSeaPicker(){
+  const grid = $('#presetGrid');
+  grid.innerHTML = '';
+
+  if (!seaPresets.length) {
+    const d = document.createElement('div');
+    d.className = 'preset-empty';
+    d.textContent = '还没有预设调料，点左下角「管理预设」添加';
+    grid.appendChild(d);
+    return;
+  }
+
+  seaPresets.forEach(p => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'preset-chip' + (pickerSelected.has(p.name) ? ' selected' : '');
+    btn.textContent = p.name;
+    btn.addEventListener('click', () => {
+      if (pickerSelected.has(p.name)) pickerSelected.delete(p.name);
+      else pickerSelected.add(p.name);
+      btn.classList.toggle('selected');
+      updatePickerCount();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function updatePickerCount(){
+  const n = pickerSelected.size;
+  const btn = $('#btnConfirmSeaPicker');
+  if (!btn) return;
+  btn.textContent = n > 0 ? ('添加 (' + n + ')') : '添加';
+  btn.disabled = n === 0;
+}
+
+function confirmSeaPicker(){
+  if (!pickerSelected.size) return;
+
+  const existing = new Set(
+    editItems.filter(isSea).map(i => i.name)
+  );
+
+  const toAdd = [];
+  seaPresets.forEach(p => {
+    if (!pickerSelected.has(p.name)) return;
+    if (existing.has(p.name)) return;
+    toAdd.push(p);
+  });
+
+  if (!toAdd.length) {
+    toast('选中的调料都已经添加过了');
+    pickerSelected.clear();
+    renderSeaPicker();
+    updatePickerCount();
+    return;
+  }
+
+  toAdd.forEach(p => {
+    editItems.push({
+      name: p.name,
+      unit: p.unit || '克',
+      pro: '',
+      mini: '',
+      cat: CAT_SEA
+    });
+  });
+
+  pickerSelected.clear();
+  renderIngEditor();
+  closeSeaPicker();
+  toast('已添加 ' + toAdd.length + ' 种调料');
+}
+
+function addCustomSea(){
+  const name = $('#seaCustomName').value.trim().slice(0, 12);
+  const unit = $('#seaCustomUnit').value || '克';
+  if (!name) { toast('请输入调料名称'); return; }
+
+  if (editItems.some(i => isSea(i) && i.name === name)) {
+    toast('「' + name + '」已经添加过了');
+    return;
+  }
+
+  editItems.push({
+    name: name,
+    unit: unit,
+    pro: '',
+    mini: '',
+    cat: CAT_SEA
+  });
+
+  $('#seaCustomName').value = '';
+  renderIngEditor();
+  toast('已添加「' + name + '」');
+
+  if (window.matchMedia('(min-width: 768px)').matches) {
+    $('#seaCustomName').focus();
+  }
+}
+
+/* ===================== 预设管理弹层 ===================== */
+function openPresetManager(){
+  fillUnitSelect($('#presetNewUnit'), '克');
+  $('#presetNewName').value = '';
+  renderPresetManager();
+  $('#presetManagerOverlay').classList.add('open');
+  lockScroll();
+}
+
+function closePresetManager(){
+  $('#presetManagerOverlay').classList.remove('open');
+  unlockScroll();
+  /* 预设可能变了，刷新选择器 */
+  renderSeaPicker();
+  updatePickerCount();
+}
+
+function renderPresetManager(){
+  const list = $('#presetManageList');
+  list.innerHTML = '';
+
+  const cnt = $('#presetCount');
+  if (cnt) cnt.textContent = '（' + seaPresets.length + '）';
+
+  if (!seaPresets.length) {
+    const d = document.createElement('div');
+    d.className = 'preset-empty';
+    d.textContent = '还没有预设，在下方添加';
+    list.appendChild(d);
+    return;
+  }
+
+  seaPresets.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'preset-manage-item';
+
+    const nm = document.createElement('span');
+    nm.className = 'name';
+    nm.textContent = p.name;
+
+    const u = document.createElement('span');
+    u.className = 'unit';
+    u.textContent = p.unit || '克';
+
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'del';
+    del.textContent = '✕';
+    del.setAttribute('aria-label', '删除');
+    del.addEventListener('click', () => {
+      const removed = seaPresets[i];
+      seaPresets.splice(i, 1);
+      persistSeaPresets();
+      if (removed) pickerSelected.delete(removed.name);
+      renderPresetManager();
+    });
+
+    item.appendChild(nm);
+    item.appendChild(u);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+function addPreset(){
+  const name = $('#presetNewName').value.trim().slice(0, 12);
+  const unit = $('#presetNewUnit').value || '克';
+  if (!name) { toast('请输入调料名称'); return; }
+
+  if (seaPresets.some(p => p.name === name)) {
+    toast('「' + name + '」已在预设中');
+    return;
+  }
+
+  seaPresets.push({ name: name, unit: unit });
+  persistSeaPresets();
+  $('#presetNewName').value = '';
+  renderPresetManager();
+  toast('已添加预设「' + name + '」');
+
+  if (window.matchMedia('(min-width: 768px)').matches) {
+    $('#presetNewName').focus();
+  }
+}
+
+function resetPresets(){
+  if (!confirm('恢复为默认预设调料？当前自定义的预设会被覆盖。')) return;
+  seaPresets = DEFAULT_SEA_PRESETS.map(p => ({ name: p.name, unit: p.unit }));
+  persistSeaPresets();
+  pickerSelected.clear();
+  renderPresetManager();
+  toast('已恢复默认预设');
+}
+
+/* ===================== 打开 / 关闭编辑 ===================== */
 function openEdit(id){
   editingId = id || null;
 
@@ -1932,459 +2364,4 @@ function openDetail(id){
   if (!r) return;
 
   detailId = id;
-  detailModel = (filterModel !== 'all' && (r.models || []).includes(filterModel))
-    ? filterModel
-    : ((r.models || [])[0] || 'pro');
-
-  renderDetail();
-  $('#detailOverlay').classList.add('open');
-  lockScroll();
-}
-
-function closeDetail(){
-  $('#detailOverlay').classList.remove('open');
-  unlockScroll();
-}
-
-function getChecked(r){
-  const key = r.id + '|' + detailModel;
-  if (!checkStore[key]) checkStore[key] = new Set();
-  return checkStore[key];
-}
-
-function renderDetail(){
-  const r = recipes.find(x => x.id === detailId);
-  if (!r) return;
-
-  $('#dName').textContent = r.name;
-
-  const dDur = $('#dDuration');
-  const durTxt = fmtDuration(r.duration);
-  if (durTxt) {
-    dDur.hidden = false;
-    dDur.textContent = '⏱ ' + durTxt;
-  } else {
-    dDur.hidden = true;
-  }
-
-  const dTags = $('#dTags');
-  const tags = r.tags || [];
-  dTags.innerHTML = '';
-  if (tags.length) {
-    dTags.hidden = false;
-    tags.forEach(t => {
-      const s = document.createElement('span');
-      s.className = 'fs-tag';
-      s.textContent = t;
-      dTags.appendChild(s);
-    });
-  } else {
-    dTags.hidden = true;
-  }
-
-  const sw = $('#detailModelSwitch');
-  sw.innerHTML = '';
-  if ((r.models || []).length > 1) {
-    sw.hidden = false;
-    r.models.forEach(m => {
-      const M = MODELS.find(x => x.key === m);
-      if (!M) return;
-      const b = document.createElement('button');
-      b.textContent = M.name;
-      b.className = (m === detailModel) ? 'active' : '';
-      b.addEventListener('click', () => {
-        detailModel = m;
-        renderDetail();
-      });
-      sw.appendChild(b);
-    });
-  } else {
-    sw.hidden = true;
-  }
-
-  const checked = getChecked(r);
-
-  const ingEntries = [];
-  const seaEntries = [];
-  (r.ingredients || []).forEach((ing, i) => {
-    (isSea(ing) ? seaEntries : ingEntries).push({ ing, idx: i });
-  });
-
-  const colIng = $('#dColIng');
-  const colSea = $('#dColSea');
-  colIng.hidden = ingEntries.length === 0;
-  colSea.hidden = seaEntries.length === 0;
-
-  function fill(ul, entries){
-    ul.innerHTML = '';
-    entries.forEach(({ ing, idx }) => {
-      const li = document.createElement('li');
-      li.className = 'fs-item' + (checked.has(idx) ? ' done' : '');
-      li.dataset.idx = idx;
-      li.innerHTML =
-        '<span class="check-box"></span>' +
-        '<span class="nm">' + esc(ing.name) + '</span>' +
-        '<span class="am">' + esc(fmt(ing[detailModel], ing.unit)) + '</span>';
-
-      li.addEventListener('click', () => {
-        if (checked.has(idx)) checked.delete(idx); else checked.add(idx);
-        li.classList.toggle('done');
-        updateProgress(r);
-      });
-
-      ul.appendChild(li);
-    });
-  }
-
-  fill($('#dListIng'), ingEntries);
-  fill($('#dListSea'), seaEntries);
-
-  updateProgress(r);
-}
-
-function updateProgress(r){
-  const checked = getChecked(r);
-  const ings = (r.ingredients || []).filter(isIng);
-  const seas = (r.ingredients || []).filter(isSea);
-
-  let doneIng = 0, doneSea = 0;
-  (r.ingredients || []).forEach((ing, i) => {
-    if (!checked.has(i)) return;
-    if (isSea(ing)) doneSea++; else doneIng++;
-  });
-
-  $('#dCountIng').textContent = ings.length ? (doneIng + ' / ' + ings.length) : '';
-  $('#dCountSea').textContent = seas.length ? (doneSea + ' / ' + seas.length) : '';
-
-  const total = ings.length + seas.length;
-  const done = doneIng + doneSea;
-  $('#dProgress').textContent = total ? ('已备 ' + done + ' / ' + total) : '';
-  $('#dBarFill').style.width = total ? ((done / total) * 100) + '%' : '0%';
-}
-
-/* ===================== 复制清单 ===================== */
-function copyText(text){
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    return navigator.clipboard.writeText(text);
-  }
-  return new Promise((resolve, reject) => {
-    try {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      resolve();
-    } catch(e) { reject(e); }
-  });
-}
-
-function copyList(){
-  const r = recipes.find(x => x.id === detailId);
-  if (!r) return;
-  const M = MODELS.find(x => x.key === detailModel);
-  const lines = ['【' + r.name + '】' + (M ? M.name : '')];
-
-  const durTxt = fmtDuration(r.duration);
-  if (durTxt) lines.push('⏱ 制作时长：' + durTxt);
-  if ((r.tags || []).length) lines.push('🏷 标签：' + r.tags.join('、'));
-
-  const ings = (r.ingredients || []).filter(isIng);
-  const seas = (r.ingredients || []).filter(isSea);
-
-  if (ings.length) {
-    lines.push('');
-    lines.push('— 食材 —');
-    ings.forEach(i => lines.push('· ' + i.name + '  ' + fmt(i[detailModel], i.unit)));
-  }
-  if (seas.length) {
-    lines.push('');
-    lines.push('— 调料 —');
-    seas.forEach(i => lines.push('· ' + i.name + '  ' + fmt(i[detailModel], i.unit)));
-  }
-  if (r.note && r.note.trim()) {
-    lines.push('');
-    lines.push(r.note.trim());
-  }
-
-  copyText(lines.join('\n'))
-    .then(() => toast('清单已复制'))
-    .catch(() => toast('复制失败，请手动选择'));
-}
-
-/* ===================== 文件导入 / 导出（本地备份） ===================== */
-function exportData(){
-  if (!recipes.length) { toast('还没有菜谱可导出'); return; }
-  const blob = new Blob([JSON.stringify(recipes, null, 2)], { type:'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const d = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  a.href = url;
-  a.download = '备菜菜谱_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-  toast('已导出 ' + recipes.length + ' 个菜谱');
-}
-
-function importData(file){
-  const reader = new FileReader();
-  reader.onload = () => {
-    let data;
-    try {
-      data = JSON.parse(reader.result);
-      if (!Array.isArray(data)) throw new Error('not array');
-    } catch(e) {
-      toast('文件格式不正确');
-      return;
-    }
-
-    let added = 0;
-    data.forEach(item => {
-      const rec = normalizeRecipe(item);
-      if (!rec || !rec.name) return;
-      if (recipes.some(r => r.id === rec.id)) rec.id = uid();
-      recipes.push(rec);
-      added++;
-    });
-
-    persist();
-    renderTagBar();
-    renderGrid();
-    scheduleAutoPush();
-    toast(added ? ('成功导入 ' + added + ' 个菜谱') : '没有可导入的菜谱');
-  };
-  reader.readAsText(file);
-}
-
-/* ===================== 事件绑定 ===================== */
-function bindEvents(){
-
-  /* 机型筛选 */
-  $('#modelFilter').addEventListener('click', e => {
-    const btn = e.target.closest('button[data-model]');
-    if (!btn) return;
-    filterModel = btn.dataset.model;
-    try { localStorage.setItem(FILTER_KEY, filterModel); } catch(err){}
-    renderFilter();
-    renderGrid();
-  });
-
-  /* 搜索 */
-  let searchTimer;
-  $('#searchInput').addEventListener('input', e => {
-    clearTimeout(searchTimer);
-    const v = e.target.value;
-    searchTimer = setTimeout(() => {
-      searchTerm = v;
-      renderGrid();
-    }, 140);
-  });
-
-  /* 卡片点击 → 详情 */
-  $('#recipeGrid').addEventListener('click', e => {
-    const card = e.target.closest('.card');
-    if (card) openDetail(card.dataset.id);
-  });
-
-  /* 新增 */
-  $('#btnAdd').addEventListener('click', () => openEdit(null));
-
-  /* 编辑弹层按钮 */
-  $('#btnCloseEdit').addEventListener('click', closeEdit);
-  $('#btnCancel').addEventListener('click', closeEdit);
-  $('#btnSave').addEventListener('click', saveEdit);
-  $('#btnDelete').addEventListener('click', deleteRecipe);
-
-  /* 添加食材 / 调料 */
-  $('#btnAddIng').addEventListener('click', () => {
-    editItems.push(blankItem(CAT_ING));
-    renderIngEditor();
-    focusLast('#ingList');
-  });
-  $('#btnAddSea').addEventListener('click', () => {
-    editItems.push(blankItem(CAT_SEA));
-    renderIngEditor();
-    focusLast('#seaList');
-  });
-  function focusLast(sel){
-    if (!window.matchMedia('(min-width: 768px)').matches) return;
-    const rows = document.querySelectorAll(sel + ' .ing-row');
-    const last = rows[rows.length - 1];
-    if (last) {
-      const inp = last.querySelector('.ing-name');
-      if (inp) inp.focus();
-    }
-  }
-
-  /* 编辑区输入委托 */
-  const editOverlay = $('#editOverlay');
-  editOverlay.addEventListener('input', e => {
-    if (e.target.matches('select')) return;
-    if (e.target.closest('.ing-row')) onIngField(e);
-  });
-  editOverlay.addEventListener('change', e => {
-    if (!e.target.matches('select')) return;
-    if (e.target.closest('.ing-row')) onIngField(e);
-  });
-
-  /* 标签编辑器 */
-  const tagInput = $('#tagEditorInput');
-  const tagBox   = $('#tagEditor');
-
-  tagInput.addEventListener('keydown', e => {
-    if (e.isComposing) return;
-    if (e.key === 'Enter' || e.key === ',' || e.key === '，') {
-      e.preventDefault();
-      addTagFromInput();
-    } else if (e.key === 'Backspace' && !e.target.value && editTags.length) {
-      e.preventDefault();
-      editTags.pop();
-      renderTagEditor();
-    }
-  });
-  tagInput.addEventListener('blur', () => {
-    if (tagInput.value.trim()) addTagFromInput();
-  });
-  tagBox.addEventListener('mousedown', e => {
-    if (e.target.closest('button')) return;
-    setTimeout(() => tagInput.focus(), 0);
-  });
-
-  /* 详情弹层 */
-  $('#btnCloseDetail').addEventListener('click', closeDetail);
-  $('#btnCopyList').addEventListener('click', copyList);
-  $('#btnClearChecks').addEventListener('click', () => {
-    const r = recipes.find(x => x.id === detailId);
-    if (!r) return;
-    checkStore[r.id + '|' + detailModel] = new Set();
-    renderDetail();
-  });
-  $('#btnEditFromDetail').addEventListener('click', () => {
-    const id = detailId;
-    closeDetail();
-    setTimeout(() => openEdit(id), 180);
-  });
-
-  /* 设置弹层 */
-  $('#btnSync').addEventListener('click', openSettings);
-  $('#btnCloseSettings').addEventListener('click', closeSettings);
-  $('#btnCloseSettings2').addEventListener('click', closeSettings);
-  $('#btnSaveSettings').addEventListener('click', saveSettings);
-
-  $('#settingsOverlay').addEventListener('mousedown', e => {
-    if (e.target === $('#settingsOverlay')) closeSettings();
-  });
-
-  $('#btnCreateGist').addEventListener('click', () => {
-    /* 先同步输入框到状态，避免用户忘了点保存 */
-    syncState.token = $('#sToken').value.trim() || syncState.token;
-    persistSyncSettings();
-    gistCreate();
-  });
-
-  $('#btnBindGist').addEventListener('click', async () => {
-    const token = $('#sToken').value.trim();
-    const id    = $('#sGistId').value.trim();
-    if (!token) { toast('请填写 Token'); return; }
-    if (!id)    { toast('请填写 Gist ID'); return; }
-
-    syncState.token  = token;
-    syncState.gistId = id;
-    persistSyncSettings();
-    refreshSyncButton();
-
-    /* 验证 Gist 是否可访问 */
-    if (syncState.busy) return;
-    syncState.busy = true;
-    toast('正在验证 Gist…');
-    try {
-      await ghFetch('https://api.github.com/gists/' + id);
-      refreshSyncStatus();
-      toast('绑定成功');
-    } catch(err) {
-      syncState.gistId = '';
-      persistSyncSettings();
-      refreshSyncStatus();
-      refreshSyncButton();
-      toast('绑定失败：' + err.message);
-    } finally {
-      syncState.busy = false;
-    }
-  });
-
-  $('#btnPullNow').addEventListener('click', () => {
-    syncState.token  = $('#sToken').value.trim()  || syncState.token;
-    syncState.gistId = $('#sGistId').value.trim() || syncState.gistId;
-    persistSyncSettings();
-    refreshSyncButton();
-    gistPull(false);
-  });
-
-  $('#btnPushNow').addEventListener('click', () => {
-    syncState.token  = $('#sToken').value.trim()  || syncState.token;
-    syncState.gistId = $('#sGistId').value.trim() || syncState.gistId;
-    persistSyncSettings();
-    refreshSyncButton();
-    gistPush(false);
-  });
-
-  $('#btnClearSync').addEventListener('click', () => {
-    if (!confirm('清除本机保存的 Token、Gist ID 和同步设置？（不会删除云端数据）')) return;
-    syncState.token = '';
-    syncState.gistId = '';
-    syncState.lastSync = 0;
-    persistSyncSettings();
-    $('#sToken').value = '';
-    $('#sGistId').value = '';
-    refreshSyncStatus();
-    refreshSyncButton();
-    toast('同步设置已清除');
-  });
-
-  /* ESC 关闭所有弹层 */
-  document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
-    if ($('#settingsOverlay').classList.contains('open')) { closeSettings(); return; }
-    if ($('#editOverlay').classList.contains('open'))     { closeEdit(); return; }
-    if ($('#detailOverlay').classList.contains('open'))   { closeDetail(); }
-  });
-
-  /* 文件导入导出 */
-  $('#btnExport').addEventListener('click', exportData);
-  $('#btnImport').addEventListener('click', () => $('#fileInput').click());
-  $('#fileInput').addEventListener('change', e => {
-    const f = e.target.files && e.target.files[0];
-    if (f) importData(f);
-    e.target.value = '';
-  });
-}
-
-/* ===================== 启动 ===================== */
-function init(){
-  loadData();
-  loadSyncSettings();
-  bindEvents();
-  renderFilter();
-  renderTagBar();
-  renderGrid();
-  refreshSyncStatus();
-  refreshSyncButton();
-
-  /* 打开页面自动拉取（静默） */
-  if (syncState.pullOnLoad && syncState.token && syncState.gistId) {
-    setTimeout(() => { gistPull(true); }, 500);
-  }
-}
-
-init();
-
-})();
-</script>
-</body>
-</html>
+  detailModel = (
