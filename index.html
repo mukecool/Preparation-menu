@@ -579,7 +579,6 @@ select{
   padding-right:28px;
 }
 
-/* 时长输入 */
 .duration-wrap{position:relative;}
 .duration-wrap .text-input{padding-right:58px;}
 .duration-suffix{
@@ -588,7 +587,6 @@ select{
   pointer-events:none;white-space:nowrap;
 }
 
-/* 标签编辑器 */
 .tag-editor{
   display:flex;flex-wrap:wrap;gap:6px;align-items:center;
   padding:8px 10px;
@@ -728,7 +726,6 @@ select{
   text-align:center;width:100%;
 }
 
-/* 内联添加行 */
 .inline-add-row{
   display:flex;gap:8px;align-items:center;
   flex-wrap:wrap;
@@ -737,7 +734,6 @@ select{
 .inline-add-row select{flex:0 0 auto;width:88px;}
 .inline-add-row button{flex:none;white-space:nowrap;}
 
-/* 预设管理列表 */
 .preset-manage-list{
   display:grid;gap:8px;
   max-height:300px;overflow-y:auto;
@@ -1043,7 +1039,7 @@ select{
         <input class="text-input" id="sToken" type="password"
                placeholder="ghp_xxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
         <div class="field-note">
-          需要一个有 <strong>gist</strong> 权限的 Personal Access Token（经典或细粒度均可）。仅保存在本机浏览器 localStorage，不会上传到任何第三方。
+          需要一个有 <strong>gist</strong> 权限的 Personal Access Token。仅保存在本机浏览器 localStorage。
         </div>
       </div>
 
@@ -1052,7 +1048,7 @@ select{
         <input class="text-input" id="sGistId" type="text"
                placeholder="例如 a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4" autocomplete="off" spellcheck="false">
         <div class="field-note">
-          可留空，点下方「创建新 Gist 并绑定」自动生成；也可在另一台设备填入同一个 Gist ID 来绑定。
+          可留空，点「创建新 Gist 并绑定」自动生成；也可填入已有 Gist ID 后点「绑定已有 Gist」。
         </div>
       </div>
 
@@ -1063,9 +1059,6 @@ select{
           <button type="button" class="ghost-btn" id="btnBindGist">绑定已有 Gist</button>
           <button type="button" class="ghost-btn" id="btnPullNow">立即拉取</button>
           <button type="button" class="ghost-btn" id="btnPushNow">立即推送</button>
-        </div>
-        <div class="field-note">
-          推送：把当前设备的菜谱覆盖到云端；拉取：把云端与本地合并（同 ID 以较新的版本为准）。
         </div>
       </div>
 
@@ -1173,6 +1166,12 @@ select{
 (function(){
 'use strict';
 
+/* ===================== 全局错误处理 ===================== */
+window.onerror = function(msg, src, line, col, err){
+  console.error('[备菜清单错误]', msg, '位置:', src, line + ':' + col, err);
+  return false;
+};
+
 /* ===================== 常量 ===================== */
 const STORAGE_KEY    = 'beicai_recipes_v3';
 const LEGACY_KEYS    = ['beicai_recipes_v2', 'beicai_recipes_v1'];
@@ -1201,7 +1200,6 @@ const UNITS = ['克','毫升','个','瓣','根','片','勺','把','适量'];
 const MAX_TAGS     = 8;
 const CARD_TAG_MAX = 4;
 
-/* 默认调料预设 */
 const DEFAULT_SEA_PRESETS = [
   { name:'食用油', unit:'克' },
   { name:'盐',     unit:'克' },
@@ -1237,11 +1235,9 @@ const checkStore = {};
 let scrollLocks  = 0;
 let autoPushTimer = null;
 
-/* 调料预设 */
 let seaPresets = [];
 let pickerSelected = new Set();
 
-/* 同步状态 */
 const syncState = {
   token:      '',
   gistId:     '',
@@ -1253,6 +1249,13 @@ const syncState = {
 
 /* ===================== 工具 ===================== */
 const $ = s => document.querySelector(s);
+
+/* 安全绑定事件：元素不存在时跳过，不会导致整体崩溃 */
+function on(sel, evt, fn){
+  const el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+  if (!el) { console.warn('[备菜清单] 元素不存在，跳过绑定:', sel); return; }
+  el.addEventListener(evt, fn);
+}
 
 function uid(){
   return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
@@ -1301,6 +1304,7 @@ function unlockScroll(){
 let toastTimer;
 function toast(msg){
   const el = $('#toast');
+  if (!el) return;
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(toastTimer);
@@ -1321,7 +1325,7 @@ function fillUnitSelect(sel, current){
   });
 }
 
-/* ===================== 调料预设存储 ===================== */
+/* ===================== 调料预设 ===================== */
 function loadSeaPresets(){
   let raw = null;
   try { raw = localStorage.getItem(SEA_PRESETS_KEY); } catch(e){}
@@ -1329,20 +1333,21 @@ function loadSeaPresets(){
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length) {
         seaPresets = parsed
           .map(p => ({
             name: String(p && p.name || '').trim().slice(0, 12),
             unit: (p && p.unit) || '克'
           }))
           .filter(p => p.name);
+        if (seaPresets.length) return;
       }
-    } catch(e){ seaPresets = []; }
+    } catch(e){}
   }
 
-  if (!seaPresets.length) {
-    seaPresets = DEFAULT_SEA_PRESETS.map(p => ({ name: p.name, unit: p.unit }));
-  }
+  /* 没有预设时使用默认 */
+  seaPresets = DEFAULT_SEA_PRESETS.map(p => ({ name: p.name, unit: p.unit }));
+  persistSeaPresets();
 }
 function persistSeaPresets(){
   try { localStorage.setItem(SEA_PRESETS_KEY, JSON.stringify(seaPresets)); } catch(e){}
@@ -1401,25 +1406,41 @@ function sampleRecipe(){
 
 function loadData(){
   let raw = null;
-  try { raw = localStorage.getItem(STORAGE_KEY); } catch(e){}
+  let usedKey = '';
+
+  try { raw = localStorage.getItem(STORAGE_KEY); if (raw) usedKey = STORAGE_KEY; } catch(e){}
+
   if (!raw) {
     for (let i = 0; i < LEGACY_KEYS.length; i++) {
       try { raw = localStorage.getItem(LEGACY_KEYS[i]); } catch(e){}
-      if (raw) break;
+      if (raw) { usedKey = LEGACY_KEYS[i]; break; }
     }
   }
 
+  /* 关键修复：只有成功解析才替换 recipes，解析失败不要覆盖原数据 */
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        recipes = parsed.map(normalizeRecipe).filter(Boolean);
+        const cleaned = parsed.map(normalizeRecipe).filter(Boolean);
+        if (cleaned.length) {
+          recipes = cleaned;
+        }
       }
-    } catch(e){ recipes = []; }
+    } catch(e) {
+      console.error('[备菜清单] 本地数据解析失败，保留原数据', e);
+      /* 不覆盖、不清空，只是本次加载不到 */
+    }
   }
 
-  if (!recipes.length) recipes = [sampleRecipe()];
-  persist();
+  /* 如果确实没有任何数据，才使用示例 */
+  if (!recipes.length) {
+    recipes = [sampleRecipe()];
+    persist();
+  } else if (usedKey && usedKey !== STORAGE_KEY) {
+    /* 从旧键迁移到新键 */
+    persist();
+  }
 
   try {
     const f = localStorage.getItem(FILTER_KEY);
@@ -1438,7 +1459,7 @@ function saveTagFilter(){
   try { localStorage.setItem(TAG_FILTER_KEY, filterTag); } catch(e){}
 }
 
-/* ===================== 同步设置持久化 ===================== */
+/* ===================== 同步设置 ===================== */
 function loadSyncSettings(){
   try {
     syncState.token      = localStorage.getItem(GH_TOKEN_KEY) || '';
@@ -1458,7 +1479,6 @@ function persistSyncSettings(){
   } catch(e){}
 }
 
-/* ===================== 同步 UI ===================== */
 function refreshSyncStatus(){
   const el = $('#syncStatus');
   if (!el) return;
@@ -1692,7 +1712,7 @@ function saveSettings(){
   toast('设置已保存');
 }
 
-/* ===================== 标签收集 / 筛选栏 ===================== */
+/* ===================== 标签 ===================== */
 function collectTags(){
   const map = new Map();
   recipes.forEach(r => {
@@ -1712,6 +1732,7 @@ function renderTagBar(){
   const tags  = collectTags();
   const bar   = $('#tagBar');
   const inner = $('#tagBarInner');
+  if (!bar || !inner) return;
 
   if (!tags.length) {
     bar.hidden = true;
@@ -1757,7 +1778,7 @@ function renderTagBar(){
   });
 }
 
-/* ===================== 渲染：列表 ===================== */
+/* ===================== 列表 ===================== */
 function getFiltered(){
   const q = searchTerm.trim().toLowerCase();
   return recipes.filter(r => {
@@ -1834,12 +1855,15 @@ function buildCard(r){
 
 function renderGrid(){
   const grid = $('#recipeGrid');
+  if (!grid) return;
   const list = getFiltered();
 
   grid.innerHTML = '';
   list.forEach(r => grid.appendChild(buildCard(r)));
 
   const empty = $('#emptyState');
+  if (!empty) return;
+
   if (!list.length) {
     const hasAny = recipes.length > 0;
     empty.hidden = false;
@@ -1861,6 +1885,7 @@ function blankItem(cat){
 function renderModelChips(){
   editModels = MODELS.map(m => m.key).filter(k => editModels.includes(k));
   const wrap = $('#fModels');
+  if (!wrap) return;
   wrap.innerHTML = '';
   MODELS.forEach(M => {
     const b = document.createElement('button');
@@ -1885,6 +1910,7 @@ function renderModelChips(){
 function renderTagEditor(){
   const box   = $('#tagEditor');
   const input = $('#tagEditorInput');
+  if (!box || !input) return;
 
   box.querySelectorAll('.tag-editor-chip').forEach(el => el.remove());
 
@@ -1903,7 +1929,7 @@ function renderTagEditor(){
       ev.stopPropagation();
       editTags.splice(i, 1);
       renderTagEditor();
-      $('#tagEditorInput').focus();
+      input.focus();
     });
 
     chip.appendChild(txt);
@@ -1914,6 +1940,7 @@ function renderTagEditor(){
 
 function addTagFromInput(){
   const input = $('#tagEditorInput');
+  if (!input) return;
   const v = input.value.trim().replace(/[,，]/g, '');
   if (!v) return;
 
@@ -2007,6 +2034,7 @@ function buildIngRow(ing, index){
 function renderIngEditor(){
   const ingBox = $('#ingList');
   const seaBox = $('#seaList');
+  if (!ingBox || !seaBox) return;
   ingBox.innerHTML = '';
   seaBox.innerHTML = '';
 
@@ -2017,8 +2045,8 @@ function renderIngEditor(){
     else           { ingBox.appendChild(buildIngRow(it, i)); ingCount++; }
   });
 
-  $('#ingEmpty').hidden = ingCount > 0;
-  $('#seaEmpty').hidden = seaCount > 0;
+  const ie = $('#ingEmpty'); if (ie) ie.hidden = ingCount > 0;
+  const se = $('#seaEmpty'); if (se) se.hidden = seaCount > 0;
 }
 
 function onIngField(e){
@@ -2042,326 +2070,4 @@ function onIngField(e){
 /* ===================== 调料选择弹层 ===================== */
 function openSeaPicker(){
   pickerSelected.clear();
-  fillUnitSelect($('#seaCustomUnit'), '克');
-  $('#seaCustomName').value = '';
-  renderSeaPicker();
-  updatePickerCount();
-  $('#seaPickerOverlay').classList.add('open');
-  lockScroll();
-}
-
-function closeSeaPicker(){
-  $('#seaPickerOverlay').classList.remove('open');
-  unlockScroll();
-}
-
-function renderSeaPicker(){
-  const grid = $('#presetGrid');
-  grid.innerHTML = '';
-
-  if (!seaPresets.length) {
-    const d = document.createElement('div');
-    d.className = 'preset-empty';
-    d.textContent = '还没有预设调料，点左下角「管理预设」添加';
-    grid.appendChild(d);
-    return;
-  }
-
-  seaPresets.forEach(p => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'preset-chip' + (pickerSelected.has(p.name) ? ' selected' : '');
-    btn.textContent = p.name;
-    btn.addEventListener('click', () => {
-      if (pickerSelected.has(p.name)) pickerSelected.delete(p.name);
-      else pickerSelected.add(p.name);
-      btn.classList.toggle('selected');
-      updatePickerCount();
-    });
-    grid.appendChild(btn);
-  });
-}
-
-function updatePickerCount(){
-  const n = pickerSelected.size;
-  const btn = $('#btnConfirmSeaPicker');
-  if (!btn) return;
-  btn.textContent = n > 0 ? ('添加 (' + n + ')') : '添加';
-  btn.disabled = n === 0;
-}
-
-function confirmSeaPicker(){
-  if (!pickerSelected.size) return;
-
-  const existing = new Set(
-    editItems.filter(isSea).map(i => i.name)
-  );
-
-  const toAdd = [];
-  seaPresets.forEach(p => {
-    if (!pickerSelected.has(p.name)) return;
-    if (existing.has(p.name)) return;
-    toAdd.push(p);
-  });
-
-  if (!toAdd.length) {
-    toast('选中的调料都已经添加过了');
-    pickerSelected.clear();
-    renderSeaPicker();
-    updatePickerCount();
-    return;
-  }
-
-  toAdd.forEach(p => {
-    editItems.push({
-      name: p.name,
-      unit: p.unit || '克',
-      pro: '',
-      mini: '',
-      cat: CAT_SEA
-    });
-  });
-
-  pickerSelected.clear();
-  renderIngEditor();
-  closeSeaPicker();
-  toast('已添加 ' + toAdd.length + ' 种调料');
-}
-
-function addCustomSea(){
-  const name = $('#seaCustomName').value.trim().slice(0, 12);
-  const unit = $('#seaCustomUnit').value || '克';
-  if (!name) { toast('请输入调料名称'); return; }
-
-  if (editItems.some(i => isSea(i) && i.name === name)) {
-    toast('「' + name + '」已经添加过了');
-    return;
-  }
-
-  editItems.push({
-    name: name,
-    unit: unit,
-    pro: '',
-    mini: '',
-    cat: CAT_SEA
-  });
-
-  $('#seaCustomName').value = '';
-  renderIngEditor();
-  toast('已添加「' + name + '」');
-
-  if (window.matchMedia('(min-width: 768px)').matches) {
-    $('#seaCustomName').focus();
-  }
-}
-
-/* ===================== 预设管理弹层 ===================== */
-function openPresetManager(){
-  fillUnitSelect($('#presetNewUnit'), '克');
-  $('#presetNewName').value = '';
-  renderPresetManager();
-  $('#presetManagerOverlay').classList.add('open');
-  lockScroll();
-}
-
-function closePresetManager(){
-  $('#presetManagerOverlay').classList.remove('open');
-  unlockScroll();
-  /* 预设可能变了，刷新选择器 */
-  renderSeaPicker();
-  updatePickerCount();
-}
-
-function renderPresetManager(){
-  const list = $('#presetManageList');
-  list.innerHTML = '';
-
-  const cnt = $('#presetCount');
-  if (cnt) cnt.textContent = '（' + seaPresets.length + '）';
-
-  if (!seaPresets.length) {
-    const d = document.createElement('div');
-    d.className = 'preset-empty';
-    d.textContent = '还没有预设，在下方添加';
-    list.appendChild(d);
-    return;
-  }
-
-  seaPresets.forEach((p, i) => {
-    const item = document.createElement('div');
-    item.className = 'preset-manage-item';
-
-    const nm = document.createElement('span');
-    nm.className = 'name';
-    nm.textContent = p.name;
-
-    const u = document.createElement('span');
-    u.className = 'unit';
-    u.textContent = p.unit || '克';
-
-    const del = document.createElement('button');
-    del.type = 'button';
-    del.className = 'del';
-    del.textContent = '✕';
-    del.setAttribute('aria-label', '删除');
-    del.addEventListener('click', () => {
-      const removed = seaPresets[i];
-      seaPresets.splice(i, 1);
-      persistSeaPresets();
-      if (removed) pickerSelected.delete(removed.name);
-      renderPresetManager();
-    });
-
-    item.appendChild(nm);
-    item.appendChild(u);
-    item.appendChild(del);
-    list.appendChild(item);
-  });
-}
-
-function addPreset(){
-  const name = $('#presetNewName').value.trim().slice(0, 12);
-  const unit = $('#presetNewUnit').value || '克';
-  if (!name) { toast('请输入调料名称'); return; }
-
-  if (seaPresets.some(p => p.name === name)) {
-    toast('「' + name + '」已在预设中');
-    return;
-  }
-
-  seaPresets.push({ name: name, unit: unit });
-  persistSeaPresets();
-  $('#presetNewName').value = '';
-  renderPresetManager();
-  toast('已添加预设「' + name + '」');
-
-  if (window.matchMedia('(min-width: 768px)').matches) {
-    $('#presetNewName').focus();
-  }
-}
-
-function resetPresets(){
-  if (!confirm('恢复为默认预设调料？当前自定义的预设会被覆盖。')) return;
-  seaPresets = DEFAULT_SEA_PRESETS.map(p => ({ name: p.name, unit: p.unit }));
-  persistSeaPresets();
-  pickerSelected.clear();
-  renderPresetManager();
-  toast('已恢复默认预设');
-}
-
-/* ===================== 打开 / 关闭编辑 ===================== */
-function openEdit(id){
-  editingId = id || null;
-
-  if (id) {
-    const r = recipes.find(x => x.id === id);
-    if (!r) return;
-    editModels = (r.models || ['pro']).slice();
-    editTags   = (r.tags || []).slice();
-    editItems  = (r.ingredients || []).map(i => ({
-      name: i.name || '',
-      unit: i.unit || '克',
-      pro:  i.pro  == null ? '' : i.pro,
-      mini: i.mini == null ? '' : i.mini,
-      cat:  isSea(i) ? CAT_SEA : CAT_ING
-    }));
-    if (!editItems.length) editItems = [blankItem(CAT_ING)];
-    $('#fName').value     = r.name || '';
-    $('#fDuration').value = r.duration || '';
-    $('#fNote').value     = r.note || '';
-    $('#editTitle').textContent = '编辑菜谱';
-    $('#btnDelete').hidden = false;
-  } else {
-    editModels = filterModel === 'all' ? ['pro','mini'] : [filterModel];
-    editTags   = filterTag ? [filterTag] : [];
-    editItems  = [blankItem(CAT_ING)];
-    $('#fName').value     = '';
-    $('#fDuration').value = '';
-    $('#fNote').value     = '';
-    $('#editTitle').textContent = '新增菜谱';
-    $('#btnDelete').hidden = true;
-  }
-
-  $('#tagEditorInput').value = '';
-
-  renderModelChips();
-  renderTagEditor();
-  renderIngEditor();
-
-  $('#editOverlay').classList.add('open');
-  lockScroll();
-
-  if (window.matchMedia('(min-width: 768px)').matches) {
-    setTimeout(() => $('#fName').focus(), 120);
-  }
-}
-
-function closeEdit(){
-  $('#editOverlay').classList.remove('open');
-  unlockScroll();
-}
-
-function saveEdit(){
-  const name = $('#fName').value.trim();
-  if (!name) { toast('请填写菜名'); $('#fName').focus(); return; }
-
-  addTagFromInput();
-
-  const items = editItems
-    .map(i => ({
-      name: (i.name || '').trim(),
-      unit: i.unit || '克',
-      pro:  (i.pro  || '').toString().trim(),
-      mini: (i.mini || '').toString().trim(),
-      cat:  isSea(i) ? CAT_SEA : CAT_ING
-    }))
-    .filter(i => i.name);
-
-  if (!items.length) { toast('请至少添加一样食材或调料'); return; }
-
-  const data = {
-    name: name,
-    duration: $('#fDuration').value.trim(),
-    tags: editTags.slice(0, MAX_TAGS),
-    models: MODELS.map(m => m.key).filter(k => editModels.includes(k)),
-    ingredients: items,
-    note: $('#fNote').value.trim(),
-    updatedAt: Date.now()
-  };
-
-  if (editingId) {
-    const r = recipes.find(x => x.id === editingId);
-    if (r) Object.assign(r, data);
-  } else {
-    recipes.unshift(Object.assign({ id: uid(), createdAt: Date.now() }, data));
-  }
-
-  persist();
-  closeEdit();
-  renderTagBar();
-  renderGrid();
-  scheduleAutoPush();
-  toast(editingId ? '已更新' : '已添加');
-}
-
-function deleteRecipe(){
-  if (!editingId) return;
-  const r = recipes.find(x => x.id === editingId);
-  if (!r) return;
-  if (!confirm('确定删除「' + r.name + '」吗？此操作不可撤销。')) return;
-  recipes = recipes.filter(x => x.id !== editingId);
-  persist();
-  closeEdit();
-  renderTagBar();
-  renderGrid();
-  scheduleAutoPush();
-  toast('已删除');
-}
-
-/* ===================== 全屏详情 ===================== */
-function openDetail(id){
-  const r = recipes.find(x => x.id === id);
-  if (!r) return;
-
-  detailId = id;
-  detailModel = (
+  fillUnitSelect($('#sea
