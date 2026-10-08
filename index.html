@@ -11,6 +11,7 @@
   --text:#221f1c; --muted:#8a8079; --border:#e7e0d6;
   --accent:#d9502b; --accent-soft:#fbe9e2;
   --green:#3f8f5f; --green-soft:#e6f3ea;
+  --warn:#c9881a; --warn-soft:#fdf3dc;
   --shadow:0 4px 16px rgba(60,40,20,.06);
   --shadow-lg:0 12px 32px rgba(60,40,20,.14);
   --radius:16px;
@@ -21,6 +22,7 @@
     --text:#eee9e4; --muted:#9b929c; --border:#332f39;
     --accent:#ff7a4d; --accent-soft:#3b251e;
     --green:#6cc08c; --green-soft:#1f2f26;
+    --warn:#e0ab52; --warn-soft:#3a2f1a;
     --shadow:0 4px 16px rgba(0,0,0,.3);
     --shadow-lg:0 12px 32px rgba(0,0,0,.5);
   }
@@ -37,7 +39,6 @@ body.no-scroll{overflow:hidden;}
 @media (max-width:640px){ .wrap{width:calc(100% - 24px);} }
 button{font-family:inherit;}
 
-/* 顶栏 */
 .app-header{
   position:sticky;top:0;z-index:50;
   background:rgba(247,244,239,.88);
@@ -91,7 +92,6 @@ button{font-family:inherit;}
 }
 .danger-btn:hover{background:rgba(221,51,51,.08);}
 
-/* 工具栏 */
 .toolbar{display:flex;align-items:center;gap:12px;margin:20px auto 14px;flex-wrap:wrap;}
 .segmented{
   display:inline-flex;background:var(--card);border:1px solid var(--border);
@@ -120,7 +120,6 @@ button{font-family:inherit;}
   .segmented button{flex:1;text-align:center;padding:9px 6px;}
 }
 
-/* 标签筛选栏 */
 .tag-bar{margin:0 auto 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .tag-bar::-webkit-scrollbar{display:none;}
 .tag-bar[hidden]{display:none;}
@@ -133,7 +132,6 @@ button{font-family:inherit;}
 .tag-bar-btn:hover{border-color:var(--text);color:var(--text);}
 .tag-bar-btn.active{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:700;}
 
-/* 卡片 */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;padding-bottom:60px;}
 @media (max-width:640px){ .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;} }
 .card{
@@ -170,13 +168,11 @@ button{font-family:inherit;}
   .tag-mini{background:rgba(90,170,235,.16);color:#7cc0f5;}
 }
 
-/* 空状态 */
 .empty{text-align:center;padding:70px 20px 90px;color:var(--muted);}
 .empty-icon{font-size:48px;line-height:1;margin-bottom:14px;opacity:.75;}
 .empty h3{margin:0 0 8px;font-size:16px;color:var(--text);font-weight:600;}
 .empty p{margin:0;font-size:14px;line-height:1.6;}
 
-/* 弹层基础 */
 .overlay{
   position:fixed;inset:0;z-index:100;background:rgba(20,16,12,.45);
   -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
@@ -199,7 +195,6 @@ button{font-family:inherit;}
   @keyframes pop{from{transform:translateY(100%);}to{transform:none;}}
 }
 
-/* 全屏详情 */
 .overlay.fs{padding:0;align-items:stretch;justify-content:stretch;background:var(--bg);}
 .overlay.fs .sheet{width:100%;height:100%;max-height:100%;border-radius:0;background:var(--bg);box-shadow:none;}
 .fs-head{
@@ -281,7 +276,6 @@ button{font-family:inherit;}
 .progress-fill{height:100%;width:0;border-radius:99px;background:var(--accent);transition:width .25s ease;}
 .progress-text{font-size:12.5px;color:var(--muted);flex:none;font-variant-numeric:tabular-nums;}
 
-/* 表单 */
 .sheet-head{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:18px 20px 14px;flex:none;
@@ -378,44 +372,87 @@ select{
 .group-box.sea-box{border-left:3px solid var(--green);}
 .group-empty{font-size:13px;color:var(--muted);padding:6px 2px 10px;}
 
-/* 调料预设 */
-.preset-grid{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0 4px;}
-.preset-chip{
-  padding:9px 16px;border-radius:99px;border:1px solid var(--border);
-  background:var(--card-2);color:var(--text);font-size:14px;font-weight:500;
-  cursor:pointer;transition:.15s;white-space:nowrap;
+.preset-grid{display:grid;gap:8px;padding:2px 0 4px;}
+.preset-block{
+  background:var(--card-2);border:1px solid var(--border);
+  border-radius:12px;padding:10px 12px;
 }
-.preset-chip:hover{border-color:var(--accent);}
-.preset-chip:active{transform:scale(.96);}
-.preset-chip.selected{
-  background:var(--accent);color:#fff;border-color:var(--accent);
-  font-weight:700;box-shadow:0 2px 8px rgba(217,80,43,.3);
+.preset-block-head{display:flex;align-items:baseline;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.preset-block-name{font-size:14.5px;font-weight:700;color:var(--text);}
+.preset-block-unit{
+  font-size:11.5px;color:var(--muted);background:var(--card);
+  padding:1px 7px;border-radius:5px;border:1px solid var(--border);
 }
-.preset-empty{font-size:13px;color:var(--muted);padding:16px 4px;text-align:center;width:100%;}
+.preset-amount-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.preset-amount-btn{
+  padding:7px 14px;border-radius:8px;border:1px solid var(--border);
+  background:var(--card);color:var(--text);
+  font-size:14px;font-weight:700;cursor:pointer;transition:.15s;
+  font-variant-numeric:tabular-nums;min-width:44px;text-align:center;
+}
+.preset-amount-btn:hover{border-color:var(--accent);color:var(--accent);}
+.preset-amount-btn:active{transform:scale(.95);}
+.preset-custom-row{display:flex;gap:6px;align-items:center;margin-top:8px;}
+.preset-custom-row input{
+  flex:1;min-width:0;padding:7px 10px;border-radius:8px;
+  border:1px solid var(--border);background:var(--card);color:var(--text);
+  font-size:14px;outline:none;-webkit-appearance:none;appearance:none;
+}
+.preset-custom-row input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+.preset-custom-row button{
+  padding:7px 14px;border-radius:8px;border:none;
+  background:var(--accent);color:#fff;font-size:13.5px;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.preset-custom-row button:active{transform:scale(.96);}
+.preset-empty{font-size:13px;color:var(--muted);padding:16px 4px;text-align:center;}
+
+.preset-manage-list{
+  display:grid;gap:10px;max-height:340px;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;padding:2px;
+}
+.preset-manage-item{
+  display:grid;
+  grid-template-columns:1fr 72px 32px;
+  grid-template-rows:auto auto;
+  gap:8px;align-items:center;padding:10px;
+  background:var(--card-2);border:1px solid var(--border);border-radius:10px;
+}
+.preset-manage-item input,
+.preset-manage-item select{
+  padding:7px 9px;font-size:13.5px;border-radius:7px;
+  border:1px solid var(--border);background:var(--card);color:var(--text);
+  outline:none;-webkit-appearance:none;appearance:none;font-family:inherit;min-width:0;
+}
+.preset-manage-item input:focus,
+.preset-manage-item select:focus{
+  border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);
+}
+.preset-manage-item .preset-name-inp{grid-column:1;grid-row:1;}
+.preset-manage-item .preset-unit-sel{
+  grid-column:2;grid-row:1;width:72px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23988f88' stroke-width='3' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 6px center;background-size:10px;
+  padding-right:20px;
+}
+.preset-manage-item .preset-amounts-inp{
+  grid-column:1 / -1;grid-row:2;width:100%;font-size:13px;
+}
+.preset-manage-item .del{
+  grid-column:3;grid-row:1;
+  width:32px;height:32px;flex:none;
+  border-radius:8px;border:1px solid var(--border);
+  background:var(--card);color:var(--muted);
+  font-size:12px;cursor:pointer;padding:0;
+  display:grid;place-items:center;transition:.15s;
+}
+.preset-manage-item .del:hover{color:#d33;border-color:rgba(221,51,51,.4);}
 
 .inline-add-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .inline-add-row .name-input{flex:1 1 150px;min-width:0;}
 .inline-add-row select{flex:0 0 auto;width:88px;}
 .inline-add-row button{flex:none;white-space:nowrap;}
 
-.preset-manage-list{
-  display:grid;gap:8px;max-height:300px;overflow-y:auto;
-  -webkit-overflow-scrolling:touch;padding:2px;margin-bottom:4px;
-}
-.preset-manage-item{
-  display:flex;align-items:center;gap:10px;padding:10px 12px;
-  background:var(--card-2);border:1px solid var(--border);border-radius:10px;font-size:14px;
-}
-.preset-manage-item .name{flex:1;min-width:0;font-weight:500;word-break:break-all;}
-.preset-manage-item .unit{font-size:12px;color:var(--muted);background:var(--card);padding:2px 8px;border-radius:6px;flex:none;}
-.preset-manage-item .del{
-  width:30px;height:30px;flex:none;border-radius:8px;border:1px solid var(--border);
-  background:var(--card);color:var(--muted);font-size:12px;cursor:pointer;
-  display:grid;place-items:center;transition:.15s;
-}
-.preset-manage-item .del:hover{color:#d33;border-color:rgba(221,51,51,.4);}
-
-/* 设置 */
 .sync-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 @media (max-width:480px){ .sync-buttons{grid-template-columns:1fr;} }
 .sync-buttons button{width:100%;justify-content:center;}
@@ -438,6 +475,39 @@ select{
 .sync-status.warn{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
 .sync-status.warn strong{color:var(--accent);}
 
+/* 快照列表 */
+.snapshot-list{
+  display:grid;gap:8px;max-height:280px;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;padding:2px;
+}
+.snapshot-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;
+  background:var(--card-2);border:1px solid var(--border);border-radius:10px;
+  font-size:13px;
+}
+.snapshot-item .snap-info{flex:1;min-width:0;}
+.snapshot-item .snap-time{font-weight:600;color:var(--text);display:block;}
+.snapshot-item .snap-meta{font-size:11.5px;color:var(--muted);display:block;margin-top:2px;}
+.snapshot-item .snap-restore{
+  padding:6px 12px;border-radius:8px;border:1px solid var(--border);
+  background:var(--card);color:var(--accent);font-size:12.5px;font-weight:600;
+  cursor:pointer;transition:.15s;flex:none;
+}
+.snapshot-item .snap-restore:hover{border-color:var(--accent);}
+.snapshot-item .snap-del{
+  width:28px;height:28px;flex:none;border-radius:7px;border:1px solid var(--border);
+  background:var(--card);color:var(--muted);cursor:pointer;
+  display:grid;place-items:center;padding:0;font-size:11px;
+}
+.snapshot-item .snap-del:hover{color:#d33;border-color:rgba(221,51,51,.4);}
+.snap-warn{
+  padding:10px 12px;border-radius:10px;
+  background:var(--warn-soft);color:var(--warn);
+  border:1px solid var(--warn);
+  font-size:12.5px;line-height:1.6;margin-bottom:10px;
+}
+
 .sec-title{
   font-size:11px;font-weight:700;letter-spacing:1.4px;color:var(--muted);
   text-transform:uppercase;margin:22px 0 12px;padding-bottom:6px;
@@ -445,7 +515,6 @@ select{
 }
 .sec-title:first-child{margin-top:4px;}
 
-/* Toast */
 #toast{
   position:fixed;left:50%;bottom:44px;transform:translate(-50%,16px);
   background:rgba(30,28,32,.94);color:#fff;padding:11px 20px;border-radius:99px;
@@ -460,10 +529,7 @@ select{
 
 <header class="app-header">
   <div class="wrap header-inner">
-    <div class="brand">
-      <span class="logo">🍳</span>
-      <h1>备菜清单</h1>
-    </div>
+    <div class="brand"><span class="logo">🍳</span><h1>备菜清单</h1></div>
     <div class="header-actions">
       <button class="icon-btn" id="btnSync" title="GitHub 同步">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -635,12 +701,24 @@ select{
           <button type="button" class="ghost-btn" id="btnPullNow">立即拉取</button>
           <button type="button" class="ghost-btn" id="btnPushNow">立即推送</button>
         </div>
+        <div class="field-note">
+          推送前会自动存一份本地快照；如果本地数量骤减，会弹窗确认。拉取只做合并，不会删除本地数据。
+        </div>
       </div>
       <div class="sec-title">自动化</div>
       <label class="switch-row"><input type="checkbox" id="sAutoPush"><span>保存菜谱后自动推送到 Gist</span></label>
       <label class="switch-row"><input type="checkbox" id="sPullOnLoad"><span>打开页面时自动拉取（静默合并）</span></label>
       <div class="sec-title">状态</div>
       <div class="sync-status" id="syncStatus">未配置</div>
+
+      <div class="sec-title">本地备份（防误删）</div>
+      <div class="snap-warn">
+        🛡️ 每次推送前自动存一份快照，最多 10 份。误删后可以从这里恢复。
+      </div>
+      <div class="snapshot-list" id="snapshotList"></div>
+      <div class="field" style="margin-top:10px;margin-bottom:0">
+        <button type="button" class="ghost-btn full" id="btnSnapshotNow">立即手动备份一份</button>
+      </div>
     </div>
     <div class="sheet-foot">
       <button class="ghost-btn" id="btnClearSync">清除同步设置</button>
@@ -654,29 +732,29 @@ select{
 <div class="overlay" id="seaPickerOverlay" style="z-index:110">
   <div class="sheet">
     <div class="sheet-head">
-      <h2>添加调料</h2>
+      <h2>选择调料</h2>
       <button class="icon-btn" id="btnCloseSeaPicker">✕</button>
     </div>
     <div class="sheet-body">
       <div class="field">
-        <label class="field-label">点击勾选常用调料（可多选）</label>
+        <label class="field-label">点击分量直接添加到清单</label>
         <div class="preset-grid" id="presetGrid"></div>
       </div>
       <div class="field">
-        <label class="field-label">自定义添加</label>
+        <label class="field-label">临时添加（不入预设）</label>
         <div class="inline-add-row">
           <input class="text-input name-input" id="seaCustomName" type="text" placeholder="调料名称" autocomplete="off">
           <select class="text-input" id="seaCustomUnit"></select>
+          <input class="text-input" id="seaCustomAmount" type="text" inputMode="decimal" placeholder="分量" autocomplete="off" style="flex:0 0 80px;width:80px">
           <button type="button" class="ghost-btn" id="btnAddCustomSea">添加</button>
         </div>
-        <div class="field-note">点「添加」会立即把自定义调料加入清单；勾选的预设调料需点右下角按钮批量加入。</div>
+        <div class="field-note">临时添加的调料不会保存到预设里。</div>
       </div>
     </div>
     <div class="sheet-foot">
       <button class="ghost-btn" id="btnManagePresets">管理预设</button>
       <span style="flex:1"></span>
-      <button class="ghost-btn" id="btnCancelSeaPicker">取消</button>
-      <button class="primary-btn" id="btnConfirmSeaPicker" disabled>添加</button>
+      <button class="primary-btn" id="btnDoneSeaPicker">完成</button>
     </div>
   </div>
 </div>
@@ -692,12 +770,16 @@ select{
       <div class="field">
         <label class="field-label">已有预设<span id="presetCount" style="font-weight:400;opacity:.7"></span></label>
         <div class="preset-manage-list" id="presetManageList"></div>
+        <div class="field-note">可直接修改名称、单位、常用分量；分量用逗号分隔，如 <strong>5,10,20</strong>。</div>
       </div>
       <div class="field">
         <label class="field-label">添加新预设</label>
         <div class="inline-add-row">
           <input class="text-input name-input" id="presetNewName" type="text" placeholder="如：花椒" autocomplete="off">
           <select class="text-input" id="presetNewUnit"></select>
+        </div>
+        <div class="inline-add-row" style="margin-top:8px">
+          <input class="text-input" id="presetNewAmounts" type="text" placeholder="常用分量，逗号分隔。如 5,10,20" autocomplete="off">
           <button type="button" class="primary-btn" id="btnAddPreset">添加</button>
         </div>
       </div>
@@ -723,6 +805,7 @@ var LEGACY_KEYS     = ['beicai_recipes_v2', 'beicai_recipes_v1'];
 var FILTER_KEY      = 'beicai_filter_v1';
 var TAG_FILTER_KEY  = 'beicai_tag_filter_v1';
 var SEA_PRESETS_KEY = 'beicai_sea_presets_v1';
+var SNAPSHOT_KEY    = 'beicai_snapshots_v1';
 
 var GH_TOKEN_KEY = 'beicai_gh_token';
 var GH_GIST_KEY  = 'beicai_gh_gist_id';
@@ -743,13 +826,24 @@ var MODELS = [
 var UNITS = ['克','毫升','个','瓣','根','片','勺','把','适量'];
 var MAX_TAGS = 8;
 var CARD_TAG_MAX = 4;
+var MAX_PRESET_AMOUNTS = 6;
+var MAX_SNAPSHOTS = 10;
 
 var DEFAULT_SEA_PRESETS = [
-  { name:'食用油', unit:'克' }, { name:'盐', unit:'克' }, { name:'白糖', unit:'克' },
-  { name:'生抽', unit:'勺' }, { name:'老抽', unit:'勺' }, { name:'蚝油', unit:'勺' },
-  { name:'料酒', unit:'勺' }, { name:'醋', unit:'勺' }, { name:'胡椒粉', unit:'克' },
-  { name:'淀粉', unit:'克' }, { name:'香油', unit:'勺' }, { name:'蒜', unit:'瓣' },
-  { name:'姜', unit:'片' }, { name:'葱', unit:'根' }
+  { name:'食用油', unit:'克', amounts:['10','20','30'] },
+  { name:'盐',     unit:'克', amounts:['2','3','5'] },
+  { name:'白糖',   unit:'克', amounts:['5','10','15'] },
+  { name:'生抽',   unit:'勺', amounts:['5','10','15'] },
+  { name:'老抽',   unit:'勺', amounts:['3','5','10'] },
+  { name:'蚝油',   unit:'勺', amounts:['5','10','15'] },
+  { name:'料酒',   unit:'勺', amounts:['5','10','15'] },
+  { name:'醋',     unit:'勺', amounts:['5','10','15'] },
+  { name:'胡椒粉', unit:'克', amounts:['1','2','3'] },
+  { name:'淀粉',   unit:'克', amounts:['5','10','15'] },
+  { name:'香油',   unit:'勺', amounts:['3','5','10'] },
+  { name:'蒜',     unit:'瓣', amounts:['1','2','3'] },
+  { name:'姜',     unit:'片', amounts:['2','3','5'] },
+  { name:'葱',     unit:'根', amounts:['1','2','3'] }
 ];
 
 /* ===================== 状态 ===================== */
@@ -771,7 +865,6 @@ var scrollLocks = 0;
 var autoPushTimer = null;
 
 var seaPresets = [];
-var pickerSelected = {};
 
 var syncState = {
   token: '', gistId: '', autoPush: true, pullOnLoad: false, lastSync: 0, busy: false
@@ -779,16 +872,12 @@ var syncState = {
 
 /* ===================== 工具 ===================== */
 function $(s){ return document.querySelector(s); }
-
-/* 安全绑定事件 */
 function on(sel, evt, fn){
   var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
   if (!el) { console.warn('[备菜清单] 跳过绑定，元素不存在:', sel); return; }
   el.addEventListener(evt, fn);
 }
-
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-
 function esc(s){
   return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
     return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
@@ -807,16 +896,28 @@ function fmtDuration(d){
   if (/^\d+(\.\d+)?$/.test(v)) return v + '分钟';
   return v;
 }
+function fmtTime(ts){
+  var d = new Date(ts);
+  var pad = function(n){ return String(n).padStart(2, '0'); };
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) +
+         ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
 function normalizeTags(arr){
   if (!Array.isArray(arr)) return [];
   var seen = {}, out = [];
   arr.forEach(function(t){
     var v = String(t == null ? '' : t).trim().replace(/[,，]/g, '').slice(0, 12);
     if (!v || seen[v]) return;
-    seen[v] = true;
-    out.push(v);
+    seen[v] = true; out.push(v);
   });
   return out.slice(0, MAX_TAGS);
+}
+function parseAmounts(str){
+  return String(str == null ? '' : str)
+    .split(/[,，\s]+/)
+    .map(function(s){ return s.trim(); })
+    .filter(function(s){ return s && s.length <= 8; })
+    .slice(0, MAX_PRESET_AMOUNTS);
 }
 function lockScroll(){ scrollLocks++; document.body.classList.add('no-scroll'); }
 function unlockScroll(){
@@ -845,27 +946,152 @@ function fillUnitSelect(sel, current){
   });
 }
 
+/* ===================== 快照（防误删） ===================== */
+function loadSnapshots(){
+  try {
+    var raw = localStorage.getItem(SNAPSHOT_KEY);
+    if (!raw) return [];
+    var arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch(e) { return []; }
+}
+function persistSnapshots(snaps){
+  /* 逐份缩减，直到能存下为止 */
+  var list = snaps.slice();
+  while (list.length > 0) {
+    try {
+      localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(list));
+      return true;
+    } catch(e) {
+      list = list.slice(0, list.length - 1);
+    }
+  }
+  try { localStorage.removeItem(SNAPSHOT_KEY); } catch(e){}
+  return false;
+}
+function saveSnapshot(reason){
+  if (!recipes.length && !loadSnapshots().length) return false;
+  var snaps = loadSnapshots();
+  snaps.unshift({
+    time: Date.now(),
+    reason: reason || '手动',
+    count: recipes.length,
+    data: JSON.parse(JSON.stringify(recipes))
+  });
+  snaps = snaps.slice(0, MAX_SNAPSHOTS);
+  var ok = persistSnapshots(snaps);
+  if (!ok) console.warn('[备菜清单] 快照保存失败，localStorage 可能已满');
+  return ok;
+}
+function restoreSnapshot(index){
+  var snaps = loadSnapshots();
+  var s = snaps[index];
+  if (!s) return;
+  if (!confirm(
+    '恢复快照？\n\n' +
+    '时间：' + fmtTime(s.time) + '\n' +
+    '菜谱数：' + s.count + '\n\n' +
+    '当前数据会被覆盖（覆盖前会自动再存一份快照）。'
+  )) return;
+
+  /* 恢复前先存当前状态 */
+  saveSnapshot('恢复前');
+
+  recipes = (s.data || []).map(normalizeRecipe).filter(Boolean);
+  persist();
+  renderTagBar();
+  renderGrid();
+  renderSnapshotList();
+  toast('已恢复到 ' + fmtTime(s.time) + ' 的快照');
+  scheduleAutoPush();
+}
+function deleteSnapshot(index){
+  var snaps = loadSnapshots();
+  if (!snaps[index]) return;
+  if (!confirm('删除这份快照？')) return;
+  snaps.splice(index, 1);
+  persistSnapshots(snaps);
+  renderSnapshotList();
+}
+function clearAllSnapshots(){
+  if (!confirm('清空全部本地快照？此操作不可撤销。')) return;
+  try { localStorage.removeItem(SNAPSHOT_KEY); } catch(e){}
+  renderSnapshotList();
+  toast('已清空快照');
+}
+function renderSnapshotList(){
+  var list = $('#snapshotList');
+  if (!list) return;
+  list.innerHTML = '';
+
+  var snaps = loadSnapshots();
+  if (!snaps.length) {
+    var d = document.createElement('div');
+    d.className = 'preset-empty';
+    d.textContent = '还没有快照。点下方「立即手动备份一份」生成第一份。';
+    list.appendChild(d);
+    return;
+  }
+
+  snaps.forEach(function(s, i){
+    var item = document.createElement('div');
+    item.className = 'snapshot-item';
+
+    var info = document.createElement('div');
+    info.className = 'snap-info';
+    var t = document.createElement('span');
+    t.className = 'snap-time'; t.textContent = fmtTime(s.time);
+    var m = document.createElement('span');
+    m.className = 'snap-meta';
+    m.textContent = s.count + ' 个菜谱 · ' + (s.reason || '');
+    info.appendChild(t);
+    info.appendChild(m);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'snap-restore';
+    btn.textContent = '恢复';
+    btn.addEventListener('click', function(){ restoreSnapshot(i); });
+
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'snap-del';
+    del.textContent = '✕';
+    del.title = '删除这份快照';
+    del.addEventListener('click', function(){ deleteSnapshot(i); });
+
+    item.appendChild(info);
+    item.appendChild(btn);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
 /* ===================== 调料预设 ===================== */
+function normalizePreset(p){
+  if (!p || typeof p !== 'object') return null;
+  var name = String(p.name || '').trim().slice(0, 12);
+  if (!name) return null;
+  var unit = (p.unit && UNITS.indexOf(p.unit) !== -1) ? p.unit : '克';
+  var amounts = Array.isArray(p.amounts) ? p.amounts.map(function(a){ return String(a).trim(); }).filter(Boolean) : [];
+  amounts = amounts.filter(function(a){ return a.length <= 8; }).slice(0, MAX_PRESET_AMOUNTS);
+  return { name: name, unit: unit, amounts: amounts };
+}
 function loadSeaPresets(){
   var raw = null;
   try { raw = localStorage.getItem(SEA_PRESETS_KEY); } catch(e){}
-
   if (raw) {
     try {
       var parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length) {
-        var cleaned = parsed.map(function(p){
-          return {
-            name: String(p && p.name || '').trim().slice(0, 12),
-            unit: (p && p.unit) || '克'
-          };
-        }).filter(function(p){ return p.name; });
+        var cleaned = parsed.map(normalizePreset).filter(Boolean);
         if (cleaned.length) { seaPresets = cleaned; return; }
       }
     } catch(e){}
   }
-
-  seaPresets = DEFAULT_SEA_PRESETS.map(function(p){ return { name: p.name, unit: p.unit }; });
+  seaPresets = DEFAULT_SEA_PRESETS.map(function(p){
+    return { name: p.name, unit: p.unit, amounts: p.amounts.slice() };
+  });
   persistSeaPresets();
 }
 function persistSeaPresets(){
@@ -875,7 +1101,6 @@ function persistSeaPresets(){
 /* ===================== 数据规范化 ===================== */
 function normalizeRecipe(r){
   if (!r || typeof r !== 'object') return null;
-
   var models = Array.isArray(r.models) ? r.models.filter(function(m){ return m === 'pro' || m === 'mini'; }) : [];
   r.models = models.length ? models : ['pro','mini'];
 
@@ -901,7 +1126,7 @@ function normalizeRecipe(r){
   return r;
 }
 
-/* ===================== 示例 / 读取本地 ===================== */
+/* ===================== 示例 / 本地 ===================== */
 function sampleRecipe(){
   return normalizeRecipe({
     id: uid(),
@@ -920,23 +1145,15 @@ function sampleRecipe(){
     note: '番茄切块；鸡蛋打散加少许盐。'
   });
 }
-
 function loadData(){
   var raw = null, usedKey = '';
-
-  try {
-    raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) usedKey = STORAGE_KEY;
-  } catch(e){}
-
+  try { raw = localStorage.getItem(STORAGE_KEY); if (raw) usedKey = STORAGE_KEY; } catch(e){}
   if (!raw) {
     for (var i = 0; i < LEGACY_KEYS.length; i++) {
       try { raw = localStorage.getItem(LEGACY_KEYS[i]); } catch(e){}
       if (raw) { usedKey = LEGACY_KEYS[i]; break; }
     }
   }
-
-  /* 关键：只有成功解析才替换，解析失败保留原数据 */
   if (raw) {
     try {
       var parsed = JSON.parse(raw);
@@ -944,18 +1161,14 @@ function loadData(){
         var cleaned = parsed.map(normalizeRecipe).filter(Boolean);
         if (cleaned.length) recipes = cleaned;
       }
-    } catch(e) {
-      console.error('[备菜清单] 本地数据解析失败，保留原数据', e);
-    }
+    } catch(e) { console.error('[备菜清单] 本地数据解析失败', e); }
   }
-
   if (!recipes.length) {
     recipes = [sampleRecipe()];
     persist();
   } else if (usedKey && usedKey !== STORAGE_KEY) {
     persist();
   }
-
   try {
     var f = localStorage.getItem(FILTER_KEY);
     if (f === 'pro' || f === 'mini' || f === 'all') filterModel = f;
@@ -965,7 +1178,6 @@ function loadData(){
     if (tf) filterTag = tf;
   } catch(e){}
 }
-
 function persist(){
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)); } catch(e){}
 }
@@ -996,7 +1208,6 @@ function refreshSyncStatus(){
   var el = $('#syncStatus');
   if (!el) return;
   el.classList.remove('ok','warn');
-
   if (!syncState.token) {
     el.classList.add('warn');
     el.innerHTML = '未配置。填写 GitHub Token，点「创建新 Gist 并绑定」即可开始云端同步。';
@@ -1009,7 +1220,7 @@ function refreshSyncStatus(){
   }
   el.classList.add('ok');
   var idShort = syncState.gistId.slice(0, 10) + '…';
-  var last = syncState.lastSync ? new Date(syncState.lastSync).toLocaleString() : '从未同步';
+  var last = syncState.lastSync ? fmtTime(syncState.lastSync) : '从未同步';
   el.innerHTML = '已绑定 Gist：<strong>' + esc(idShort) + '</strong><br>上次成功同步：<strong>' + esc(last) + '</strong>';
 }
 function refreshSyncButton(){
@@ -1020,22 +1231,6 @@ function refreshSyncButton(){
 }
 
 /* ===================== GitHub API ===================== */
-function ghFetch(url, opts){
-  opts = opts || {};
-  var headers = Object.assign({
-    'Authorization': 'Bearer ' + syncState.token,
-    'Accept': 'application/vnd.github+json'
-  }, opts.headers || {});
-  return fetch(url, Object.assign({}, opts, { headers: headers })).then(function(res){
-    if (!res.ok) {
-      return res.json().catch(function(){ return {}; }).then(function(j){
-        throw new Error((j && j.message) || ('HTTP ' + res.status));
-      });
-    }
-    if (res.status === 204) return null;
-    return res.json();
-  });
-}
 function buildSyncPayload(){
   return { app: 'beicai', version: 1, updatedAt: Date.now(), recipes: recipes };
 }
@@ -1044,18 +1239,7 @@ function gistCreate(){
   if (syncState.busy) return;
   syncState.busy = true;
   toast('正在创建 Gist…');
-  ghFetch('https://api.github.com/gists', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      description: GIST_DESC, public: false,
-      files: {} // 占位，下面赋值
-    })
-  }).then(function(){}).catch(function(){});
-  /* 上面写法不优雅，改用下面直接发 */
-  syncState.busy = false;
-
-  syncState.busy = true;
+  var files = {}; files[GIST_FILENAME] = { content: JSON.stringify(buildSyncPayload(), null, 2) };
   fetch('https://api.github.com/gists', {
     method: 'POST',
     headers: {
@@ -1063,10 +1247,7 @@ function gistCreate(){
       'Accept': 'application/vnd.github+json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      description: GIST_DESC, public: false,
-      files: (function(){ var o = {}; o[GIST_FILENAME] = { content: JSON.stringify(buildSyncPayload(), null, 2) }; return o; })()
-    })
+    body: JSON.stringify({ description: GIST_DESC, public: false, files: files })
   }).then(function(res){
     if (!res.ok) return res.json().then(function(j){ throw new Error(j.message || ('HTTP ' + res.status)); });
     return res.json();
@@ -1081,34 +1262,10 @@ function gistCreate(){
     toast('创建失败：' + err.message);
   }).then(function(){ syncState.busy = false; });
 }
-function gistPush(silent){
-  if (!syncState.token || !syncState.gistId) { if (!silent) toast('请先配置 Token 和 Gist ID'); return Promise.resolve(false); }
-  if (syncState.busy) return Promise.resolve(false);
-  syncState.busy = true;
-  var body = {}; body[GIST_FILENAME] = { content: JSON.stringify(buildSyncPayload(), null, 2) };
-  return fetch('https://api.github.com/gists/' + syncState.gistId, {
-    method: 'PATCH',
-    headers: {
-      'Authorization': 'Bearer ' + syncState.token,
-      'Accept': 'application/vnd.github+json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ files: body })
-  }).then(function(res){
-    if (!res.ok) return res.json().then(function(j){ throw new Error(j.message || ('HTTP ' + res.status)); });
-    syncState.lastSync = Date.now();
-    persistSyncSettings(); refreshSyncStatus();
-    if (!silent) toast('已推送到 Gist');
-    return true;
-  }).catch(function(err){
-    if (!silent) toast('推送失败：' + err.message);
-    return false;
-  }).then(function(r){ syncState.busy = false; return r; });
-}
-function gistPull(silent){
-  if (!syncState.token || !syncState.gistId) { if (!silent) toast('请先配置 Token 和 Gist ID'); return Promise.resolve(false); }
-  if (syncState.busy) return Promise.resolve(false);
-  syncState.busy = true;
+
+/* 拉取云端数据（返回 Promise<Array>） */
+function fetchRemoteRecipes(){
+  if (!syncState.token || !syncState.gistId) return Promise.resolve(null);
   return fetch('https://api.github.com/gists/' + syncState.gistId, {
     headers: {
       'Authorization': 'Bearer ' + syncState.token,
@@ -1126,16 +1283,102 @@ function gistPull(silent){
         if (keys.length) fileContent = data.files[keys[0]].content;
       }
     }
-    if (!fileContent) throw new Error('Gist 中没有找到数据文件');
-
+    if (!fileContent) return [];
     var parsed;
-    try { parsed = JSON.parse(fileContent); } catch(e){ throw new Error('云端数据解析失败'); }
-
+    try { parsed = JSON.parse(fileContent); } catch(e){ return []; }
     var remoteRecipes = [];
     if (Array.isArray(parsed)) remoteRecipes = parsed;
     else if (parsed && Array.isArray(parsed.recipes)) remoteRecipes = parsed.recipes;
+    return remoteRecipes.map(normalizeRecipe).filter(Boolean);
+  });
+}
 
-    var cleaned = remoteRecipes.map(normalizeRecipe).filter(Boolean);
+/* 推送（带安全保护） */
+function gistPush(silent){
+  if (!syncState.token || !syncState.gistId) {
+    if (!silent) toast('请先配置 Token 和 Gist ID');
+    return Promise.resolve(false);
+  }
+  if (syncState.busy) return Promise.resolve(false);
+  syncState.busy = true;
+
+  /* 先拉云端做对比 */
+  return fetchRemoteRecipes().then(function(remoteRecipes){
+    /* 数量骤减保护：仅针对用户手动推送；自动静默推送时如果骤减也保护 */
+    if (remoteRecipes && remoteRecipes.length >= 3) {
+      var remoteCount = remoteRecipes.length;
+      var localCount = recipes.length;
+      /* 本地数量少于云端的 50% 时认为可能误删 */
+      if (localCount < remoteCount * 0.5) {
+        /* 静默推送时：不自动覆盖，改为合并（保留云端） */
+        if (silent) {
+          /* 静默场景下自动合并，防止误删数据被覆盖 */
+          recipes = mergeRecipes(recipes, remoteRecipes);
+          persist();
+          renderTagBar();
+          renderGrid();
+        } else {
+          var ok = confirm(
+            '⚠️ 推送前提醒\n\n' +
+            '本地菜谱数量：' + localCount + '\n' +
+            '云端菜谱数量：' + remoteCount + '\n\n' +
+            '本地数量明显少于云端，可能是误删。\n\n' +
+            '点「确定」继续推送（云端会被本地覆盖，但推送前会存快照）\n' +
+            '点「取消」放弃本次推送，先去检查'
+          );
+          if (!ok) {
+            syncState.busy = false;
+            return false;
+          }
+        }
+      }
+    }
+
+    /* 推送前存快照 */
+    saveSnapshot(silent ? '自动推送前' : '推送前');
+
+    /* 实际推送 */
+    return doPushRemote();
+  }).catch(function(err){
+    /* 拉取失败（可能是第一次推送，或网络问题），依旧存快照 + 推送 */
+    saveSnapshot(silent ? '自动推送前' : '推送前');
+    return doPushRemote();
+  }).then(function(r){
+    syncState.busy = false;
+    return r;
+  });
+}
+
+function doPushRemote(){
+  var body = {}; body[GIST_FILENAME] = { content: JSON.stringify(buildSyncPayload(), null, 2) };
+  return fetch('https://api.github.com/gists/' + syncState.gistId, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': 'Bearer ' + syncState.token,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ files: body })
+  }).then(function(res){
+    if (!res.ok) return res.json().then(function(j){ throw new Error(j.message || ('HTTP ' + res.status)); });
+    syncState.lastSync = Date.now();
+    persistSyncSettings(); refreshSyncStatus();
+    if (!arguments.callee.silent) toast('已推送到 Gist');
+    return true;
+  });
+}
+
+/* 拉取（合并式，不删除本地） */
+function gistPull(silent){
+  if (!syncState.token || !syncState.gistId) {
+    if (!silent) toast('请先配置 Token 和 Gist ID');
+    return Promise.resolve(false);
+  }
+  if (syncState.busy) return Promise.resolve(false);
+  syncState.busy = true;
+
+  return fetchRemoteRecipes().then(function(cleaned){
+    if (cleaned === null) throw new Error('无法读取云端数据');
     var beforeCount = recipes.length;
     recipes = mergeRecipes(recipes, cleaned);
     persist();
@@ -1146,14 +1389,21 @@ function gistPull(silent){
 
     if (!silent) {
       var added = Math.max(0, recipes.length - beforeCount);
-      toast(added > 0 ? ('已拉取并合并，新增 ' + added + ' 个菜谱') : '已拉取并合并（云端无新增）');
+      toast(added > 0
+        ? ('已拉取并合并，新增 ' + added + ' 个菜谱')
+        : '已拉取并合并（云端无新增）');
     }
     return true;
   }).catch(function(err){
     if (!silent) toast('拉取失败：' + err.message);
     return false;
-  }).then(function(r){ syncState.busy = false; return r; });
+  }).then(function(r){
+    syncState.busy = false;
+    return r;
+  });
 }
+
+/* 合并规则：同 ID 取 updatedAt 较新的一条；本地独有的保留，云端独有的也加入 */
 function mergeRecipes(localList, remoteList){
   var map = {};
   (localList || []).forEach(function(r){ map[r.id] = r; });
@@ -1168,6 +1418,7 @@ function mergeRecipes(localList, remoteList){
     return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
   });
 }
+
 function scheduleAutoPush(){
   if (!syncState.autoPush) return;
   if (!syncState.token || !syncState.gistId) return;
@@ -1182,6 +1433,7 @@ function openSettings(){
   $('#sAutoPush').checked = syncState.autoPush;
   $('#sPullOnLoad').checked = syncState.pullOnLoad;
   refreshSyncStatus();
+  renderSnapshotList();
   $('#settingsOverlay').classList.add('open');
   lockScroll();
 }
@@ -1214,7 +1466,6 @@ function renderTagBar(){
   var tags = collectTags();
   var bar = $('#tagBar'), inner = $('#tagBarInner');
   if (!bar || !inner) return;
-
   if (!tags.length) {
     bar.hidden = true; inner.innerHTML = '';
     if (filterTag) { filterTag = ''; saveTagFilter(); }
@@ -1222,7 +1473,6 @@ function renderTagBar(){
   }
   bar.hidden = false;
   if (filterTag && tags.indexOf(filterTag) === -1) { filterTag = ''; saveTagFilter(); }
-
   inner.innerHTML = '';
   var allBtn = document.createElement('button');
   allBtn.type = 'button';
@@ -1233,7 +1483,6 @@ function renderTagBar(){
     filterTag = ''; saveTagFilter(); renderTagBar(); renderGrid();
   });
   inner.appendChild(allBtn);
-
   tags.forEach(function(t){
     var b = document.createElement('button');
     b.type = 'button';
@@ -1268,12 +1517,10 @@ function buildCard(r){
   var card = document.createElement('article');
   card.className = 'card';
   card.dataset.id = r.id;
-
   var h3 = document.createElement('h3');
   h3.className = 'card-title';
   h3.textContent = r.name;
   card.appendChild(h3);
-
   var userTags = r.tags || [];
   if (userTags.length) {
     var wrap = document.createElement('div');
@@ -1290,17 +1537,14 @@ function buildCard(r){
     }
     card.appendChild(wrap);
   }
-
   var foot = document.createElement('div');
   foot.className = 'card-foot';
-
   var dur = fmtDuration(r.duration);
   if (dur) {
     var d = document.createElement('span');
     d.className = 'card-duration'; d.textContent = '⏱ ' + dur;
     foot.appendChild(d);
   }
-
   var tags = document.createElement('div');
   tags.className = 'card-tags';
   (r.models || []).forEach(function(m){
@@ -1322,7 +1566,6 @@ function renderGrid(){
   var list = getFiltered();
   grid.innerHTML = '';
   list.forEach(function(r){ grid.appendChild(buildCard(r)); });
-
   var empty = $('#emptyState');
   if (!empty) return;
   if (!list.length) {
@@ -1364,7 +1607,6 @@ function renderTagEditor(){
   var box = $('#tagEditor'), input = $('#tagEditorInput');
   if (!box || !input) return;
   box.querySelectorAll('.tag-editor-chip').forEach(function(el){ el.remove(); });
-
   editTags.forEach(function(t, i){
     var chip = document.createElement('span');
     chip.className = 'tag-editor-chip';
@@ -1395,16 +1637,13 @@ function buildIngRow(ing, index){
   var row = document.createElement('div');
   row.className = 'ing-row';
   row.dataset.index = index;
-
   var top = document.createElement('div');
   top.className = 'ing-top';
-
   var nameInp = document.createElement('input');
   nameInp.className = 'ing-name'; nameInp.type = 'text';
   nameInp.placeholder = isSea(ing) ? '调料名称' : '食材名称';
   nameInp.value = ing.name || '';
   nameInp.autocomplete = 'off';
-
   var unitSel = document.createElement('select');
   unitSel.className = 'ing-unit';
   UNITS.forEach(function(u){
@@ -1413,20 +1652,16 @@ function buildIngRow(ing, index){
     if ((ing.unit || '克') === u) o.selected = true;
     unitSel.appendChild(o);
   });
-
   var del = document.createElement('button');
   del.type = 'button'; del.className = 'ing-del'; del.textContent = '✕';
   del.addEventListener('click', function(){
     editItems.splice(index, 1);
     renderIngEditor();
   });
-
   top.appendChild(nameInp); top.appendChild(unitSel); top.appendChild(del);
   row.appendChild(top);
-
   var amts = document.createElement('div');
   amts.className = 'ing-amounts';
-
   editModels.forEach(function(m){
     var M = null;
     for (var i = 0; i < MODELS.length; i++) if (MODELS[i].key === m) { M = MODELS[i]; break; }
@@ -1444,7 +1679,6 @@ function buildIngRow(ing, index){
     lab.appendChild(lb); lab.appendChild(inp); lab.appendChild(u);
     amts.appendChild(lab);
   });
-
   row.appendChild(amts);
   return row;
 }
@@ -1452,13 +1686,11 @@ function renderIngEditor(){
   var ingBox = $('#ingList'), seaBox = $('#seaList');
   if (!ingBox || !seaBox) return;
   ingBox.innerHTML = ''; seaBox.innerHTML = '';
-
   var ingCount = 0, seaCount = 0;
   editItems.forEach(function(it, i){
     if (isSea(it)) { seaBox.appendChild(buildIngRow(it, i)); seaCount++; }
     else           { ingBox.appendChild(buildIngRow(it, i)); ingCount++; }
   });
-
   var ie = $('#ingEmpty'); if (ie) ie.hidden = ingCount > 0;
   var se = $('#seaEmpty'); if (se) se.hidden = seaCount > 0;
 }
@@ -1468,7 +1700,6 @@ function onIngField(e){
   var idx = Number(row.dataset.index);
   var ing = editItems[idx];
   if (!ing) return;
-
   var t = e.target;
   if (t.classList.contains('ing-name')) ing.name = t.value;
   else if (t.classList.contains('ing-unit')) {
@@ -1482,12 +1713,10 @@ function onIngField(e){
 /* ===================== 打开 / 关闭编辑 ===================== */
 function openEdit(id){
   editingId = id || null;
-
   if (id) {
     var r = null;
     for (var i = 0; i < recipes.length; i++) if (recipes[i].id === id) { r = recipes[i]; break; }
     if (!r) return;
-
     editModels = (r.models || ['pro']).slice();
     editTags = (r.tags || []).slice();
     editItems = (r.ingredients || []).map(function(i){
@@ -1515,15 +1744,10 @@ function openEdit(id){
     $('#editTitle').textContent = '新增菜谱';
     $('#btnDelete').hidden = true;
   }
-
   $('#tagEditorInput').value = '';
-  renderModelChips();
-  renderTagEditor();
-  renderIngEditor();
-
+  renderModelChips(); renderTagEditor(); renderIngEditor();
   $('#editOverlay').classList.add('open');
   lockScroll();
-
   if (window.matchMedia('(min-width: 768px)').matches) {
     setTimeout(function(){ $('#fName').focus(); }, 120);
   }
@@ -1535,9 +1759,7 @@ function closeEdit(){
 function saveEdit(){
   var name = $('#fName').value.trim();
   if (!name) { toast('请填写菜名'); $('#fName').focus(); return; }
-
   addTagFromInput();
-
   var items = editItems.map(function(i){
     return {
       name: (i.name || '').trim(),
@@ -1547,7 +1769,6 @@ function saveEdit(){
       cat:  isSea(i) ? CAT_SEA : CAT_ING
     };
   }).filter(function(i){ return i.name; });
-
   if (!items.length) { toast('请至少添加一样食材或调料'); return; }
 
   var data = {
@@ -1562,15 +1783,11 @@ function saveEdit(){
 
   if (editingId) {
     for (var i = 0; i < recipes.length; i++) {
-      if (recipes[i].id === editingId) {
-        Object.assign(recipes[i], data);
-        break;
-      }
+      if (recipes[i].id === editingId) { Object.assign(recipes[i], data); break; }
     }
   } else {
     recipes.unshift(Object.assign({ id: uid(), createdAt: Date.now() }, data));
   }
-
   persist();
   closeEdit();
   renderTagBar(); renderGrid();
@@ -1582,7 +1799,7 @@ function deleteRecipe(){
   var r = null;
   for (var i = 0; i < recipes.length; i++) if (recipes[i].id === editingId) { r = recipes[i]; break; }
   if (!r) return;
-  if (!confirm('确定删除「' + r.name + '」吗？此操作不可撤销。')) return;
+  if (!confirm('确定删除「' + r.name + '」吗？此操作不可撤销。\n\n（推送前会自动存快照，可在设置 → 本地备份里找回）')) return;
   recipes = recipes.filter(function(x){ return x.id !== editingId; });
   persist();
   closeEdit();
@@ -1596,12 +1813,9 @@ function openDetail(id){
   var r = null;
   for (var i = 0; i < recipes.length; i++) if (recipes[i].id === id) { r = recipes[i]; break; }
   if (!r) return;
-
   detailId = id;
   detailModel = (filterModel !== 'all' && (r.models || []).indexOf(filterModel) !== -1)
-    ? filterModel
-    : ((r.models || [])[0] || 'pro');
-
+    ? filterModel : ((r.models || [])[0] || 'pro');
   renderDetail();
   $('#detailOverlay').classList.add('open');
   lockScroll();
@@ -1619,14 +1833,11 @@ function renderDetail(){
   var r = null;
   for (var i = 0; i < recipes.length; i++) if (recipes[i].id === detailId) { r = recipes[i]; break; }
   if (!r) return;
-
   $('#dName').textContent = r.name;
-
   var dDur = $('#dDuration');
   var durTxt = fmtDuration(r.duration);
   if (durTxt) { dDur.hidden = false; dDur.textContent = '⏱ ' + durTxt; }
   else { dDur.hidden = true; }
-
   var dTags = $('#dTags');
   var tags = r.tags || [];
   dTags.innerHTML = '';
@@ -1638,7 +1849,6 @@ function renderDetail(){
       dTags.appendChild(s);
     });
   } else { dTags.hidden = true; }
-
   var sw = $('#detailModelSwitch');
   sw.innerHTML = '';
   if ((r.models || []).length > 1) {
@@ -1660,7 +1870,6 @@ function renderDetail(){
   (r.ingredients || []).forEach(function(ing, idx){
     (isSea(ing) ? seaEntries : ingEntries).push({ ing: ing, idx: idx });
   });
-
   var colIng = $('#dColIng'), colSea = $('#dColSea');
   colIng.hidden = ingEntries.length === 0;
   colSea.hidden = seaEntries.length === 0;
@@ -1676,7 +1885,6 @@ function renderDetail(){
         '<span class="check-box"></span>' +
         '<span class="nm">' + esc(ing.name) + '</span>' +
         '<span class="am">' + esc(fmt(ing[detailModel], ing.unit)) + '</span>';
-
       li.addEventListener('click', function(){
         if (checked[idx]) delete checked[idx]; else checked[idx] = true;
         li.classList.toggle('done');
@@ -1685,7 +1893,6 @@ function renderDetail(){
       ul.appendChild(li);
     });
   }
-
   fill($('#dListIng'), ingEntries);
   fill($('#dListSea'), seaEntries);
   updateProgress(r);
@@ -1694,16 +1901,13 @@ function updateProgress(r){
   var checked = getChecked(r);
   var ings = (r.ingredients || []).filter(isIng);
   var seas = (r.ingredients || []).filter(isSea);
-
   var doneIng = 0, doneSea = 0;
   (r.ingredients || []).forEach(function(ing, i){
     if (!checked[i]) return;
     if (isSea(ing)) doneSea++; else doneIng++;
   });
-
   $('#dCountIng').textContent = ings.length ? (doneIng + ' / ' + ings.length) : '';
   $('#dCountSea').textContent = seas.length ? (doneSea + ' / ' + seas.length) : '';
-
   var total = ings.length + seas.length;
   var done = doneIng + doneSea;
   $('#dProgress').textContent = total ? ('已备 ' + done + ' / ' + total) : '';
@@ -1735,14 +1939,11 @@ function copyList(){
   var M = null;
   for (var j = 0; j < MODELS.length; j++) if (MODELS[j].key === detailModel) { M = MODELS[j]; break; }
   var lines = ['【' + r.name + '】' + (M ? M.name : '')];
-
   var durTxt = fmtDuration(r.duration);
   if (durTxt) lines.push('⏱ 制作时长：' + durTxt);
   if ((r.tags || []).length) lines.push('🏷 标签：' + r.tags.join('、'));
-
   var ings = (r.ingredients || []).filter(isIng);
   var seas = (r.ingredients || []).filter(isSea);
-
   if (ings.length) {
     lines.push(''); lines.push('— 食材 —');
     ings.forEach(function(i){ lines.push('· ' + i.name + '  ' + fmt(i[detailModel], i.unit)); });
@@ -1752,7 +1953,6 @@ function copyList(){
     seas.forEach(function(i){ lines.push('· ' + i.name + '  ' + fmt(i[detailModel], i.unit)); });
   }
   if (r.note && r.note.trim()) { lines.push(''); lines.push(r.note.trim()); }
-
   copyText(lines.join('\n')).then(function(){ toast('清单已复制'); }).catch(function(){ toast('复制失败'); });
 }
 
@@ -1778,7 +1978,7 @@ function importData(file){
       data = JSON.parse(reader.result);
       if (!Array.isArray(data)) throw new Error('not array');
     } catch(e) { toast('文件格式不正确'); return; }
-
+    saveSnapshot('导入前');
     var added = 0;
     data.forEach(function(item){
       var rec = normalizeRecipe(item);
@@ -1797,11 +1997,10 @@ function importData(file){
 
 /* ===================== 调料选择弹层 ===================== */
 function openSeaPicker(){
-  pickerSelected = {};
   fillUnitSelect($('#seaCustomUnit'), '克');
   $('#seaCustomName').value = '';
+  $('#seaCustomAmount').value = '';
   renderSeaPicker();
-  updatePickerCount();
   $('#seaPickerOverlay').classList.add('open');
   lockScroll();
 }
@@ -1809,11 +2008,34 @@ function closeSeaPicker(){
   $('#seaPickerOverlay').classList.remove('open');
   unlockScroll();
 }
+function addSeaFromPreset(preset, amount){
+  var name = preset.name;
+  var unit = preset.unit || '克';
+  var val = String(amount).trim();
+  if (!val) return;
+  var existing = null;
+  for (var i = 0; i < editItems.length; i++){
+    if (isSea(editItems[i]) && editItems[i].name === name) { existing = editItems[i]; break; }
+  }
+  if (existing) {
+    existing.unit = unit;
+    existing.pro = val;
+    existing.mini = val;
+    toast('已更新「' + name + '」为 ' + val + unit);
+  } else {
+    editItems.push({
+      name: name, unit: unit,
+      pro: val, mini: val,
+      cat: CAT_SEA
+    });
+    toast('已添加「' + name + ' ' + val + unit + '」');
+  }
+  renderIngEditor();
+}
 function renderSeaPicker(){
   var grid = $('#presetGrid');
   if (!grid) return;
   grid.innerHTML = '';
-
   if (!seaPresets.length) {
     var d = document.createElement('div');
     d.className = 'preset-empty';
@@ -1822,69 +2044,77 @@ function renderSeaPicker(){
     return;
   }
   seaPresets.forEach(function(p){
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'preset-chip' + (pickerSelected[p.name] ? ' selected' : '');
-    btn.textContent = p.name;
-    btn.addEventListener('click', function(){
-      if (pickerSelected[p.name]) delete pickerSelected[p.name];
-      else pickerSelected[p.name] = true;
-      btn.classList.toggle('selected');
-      updatePickerCount();
+    var block = document.createElement('div');
+    block.className = 'preset-block';
+    var head = document.createElement('div');
+    head.className = 'preset-block-head';
+    var nm = document.createElement('span');
+    nm.className = 'preset-block-name'; nm.textContent = p.name;
+    var u = document.createElement('span');
+    u.className = 'preset-block-unit'; u.textContent = p.unit || '克';
+    head.appendChild(nm); head.appendChild(u);
+    block.appendChild(head);
+
+    var row = document.createElement('div');
+    row.className = 'preset-amount-row';
+    var amounts = Array.isArray(p.amounts) ? p.amounts : [];
+    amounts.forEach(function(a){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'preset-amount-btn';
+      btn.textContent = a;
+      btn.addEventListener('click', function(){ addSeaFromPreset(p, a); });
+      row.appendChild(btn);
     });
-    grid.appendChild(btn);
-  });
-}
-function updatePickerCount(){
-  var n = Object.keys(pickerSelected).length;
-  var btn = $('#btnConfirmSeaPicker');
-  if (!btn) return;
-  btn.textContent = n > 0 ? ('添加 (' + n + ')') : '添加';
-  btn.disabled = n === 0;
-}
-function confirmSeaPicker(){
-  var sel = Object.keys(pickerSelected);
-  if (!sel.length) return;
+    block.appendChild(row);
 
-  var existing = {};
-  editItems.filter(isSea).forEach(function(i){ existing[i.name] = true; });
-
-  var toAdd = [];
-  seaPresets.forEach(function(p){
-    if (!pickerSelected[p.name]) return;
-    if (existing[p.name]) return;
-    toAdd.push(p);
-  });
-
-  if (!toAdd.length) {
-    toast('选中的调料都已经添加过了');
-    pickerSelected = {}; renderSeaPicker(); updatePickerCount();
-    return;
-  }
-
-  toAdd.forEach(function(p){
-    editItems.push({
-      name: p.name, unit: p.unit || '克',
-      pro: '', mini: '', cat: CAT_SEA
+    var customRow = document.createElement('div');
+    customRow.className = 'preset-custom-row';
+    var cInp = document.createElement('input');
+    cInp.type = 'text'; cInp.inputMode = 'decimal';
+    cInp.placeholder = amounts.length ? '其他分量…' : '输入分量（如 20）';
+    var cBtn = document.createElement('button');
+    cBtn.type = 'button'; cBtn.textContent = '添加';
+    function commitCustom(){
+      var v = cInp.value.trim();
+      if (!v) { cInp.focus(); return; }
+      addSeaFromPreset(p, v);
+      cInp.value = '';
+      cInp.focus();
+    }
+    cBtn.addEventListener('click', commitCustom);
+    cInp.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') { e.preventDefault(); commitCustom(); }
     });
+    customRow.appendChild(cInp); customRow.appendChild(cBtn);
+    block.appendChild(customRow);
+    grid.appendChild(block);
   });
-
-  pickerSelected = {};
-  renderIngEditor();
-  closeSeaPicker();
-  toast('已添加 ' + toAdd.length + ' 种调料');
 }
 function addCustomSea(){
   var name = $('#seaCustomName').value.trim().slice(0, 12);
   var unit = $('#seaCustomUnit').value || '克';
+  var amt  = $('#seaCustomAmount').value.trim();
   if (!name) { toast('请输入调料名称'); return; }
-  if (editItems.some(function(i){ return isSea(i) && i.name === name; })) {
-    toast('「' + name + '」已经添加过了'); return;
+  var existing = null;
+  for (var i = 0; i < editItems.length; i++){
+    if (isSea(editItems[i]) && editItems[i].name === name) { existing = editItems[i]; break; }
   }
-  editItems.push({ name: name, unit: unit, pro: '', mini: '', cat: CAT_SEA });
+  if (existing) {
+    if (amt) { existing.pro = amt; existing.mini = amt; }
+    existing.unit = unit;
+    toast('已更新「' + name + '」');
+  } else {
+    editItems.push({
+      name: name, unit: unit,
+      pro: amt, mini: amt,
+      cat: CAT_SEA
+    });
+    toast('已添加「' + name + '」');
+  }
   $('#seaCustomName').value = '';
+  $('#seaCustomAmount').value = '';
   renderIngEditor();
-  toast('已添加「' + name + '」');
   if (window.matchMedia('(min-width: 768px)').matches) { $('#seaCustomName').focus(); }
 }
 
@@ -1892,6 +2122,7 @@ function addCustomSea(){
 function openPresetManager(){
   fillUnitSelect($('#presetNewUnit'), '克');
   $('#presetNewName').value = '';
+  $('#presetNewAmounts').value = '';
   renderPresetManager();
   $('#presetManagerOverlay').classList.add('open');
   lockScroll();
@@ -1899,16 +2130,14 @@ function openPresetManager(){
 function closePresetManager(){
   $('#presetManagerOverlay').classList.remove('open');
   unlockScroll();
-  renderSeaPicker(); updatePickerCount();
+  renderSeaPicker();
 }
 function renderPresetManager(){
   var list = $('#presetManageList');
   if (!list) return;
   list.innerHTML = '';
-
   var cnt = $('#presetCount');
   if (cnt) cnt.textContent = '（' + seaPresets.length + '）';
-
   if (!seaPresets.length) {
     var d = document.createElement('div');
     d.className = 'preset-empty';
@@ -1919,46 +2148,77 @@ function renderPresetManager(){
   seaPresets.forEach(function(p, i){
     var item = document.createElement('div');
     item.className = 'preset-manage-item';
-
-    var nm = document.createElement('span');
-    nm.className = 'name'; nm.textContent = p.name;
-
-    var u = document.createElement('span');
-    u.className = 'unit'; u.textContent = p.unit || '克';
-
+    var nameInp = document.createElement('input');
+    nameInp.type = 'text';
+    nameInp.className = 'preset-name-inp';
+    nameInp.value = p.name;
+    nameInp.placeholder = '名称';
+    nameInp.addEventListener('input', function(){
+      var v = nameInp.value.trim().slice(0, 12);
+      if (v) { p.name = v; persistSeaPresets(); }
+    });
+    var unitSel = document.createElement('select');
+    unitSel.className = 'preset-unit-sel';
+    UNITS.forEach(function(u){
+      var o = document.createElement('option');
+      o.value = u; o.textContent = u;
+      if (p.unit === u) o.selected = true;
+      unitSel.appendChild(o);
+    });
+    unitSel.addEventListener('change', function(){
+      p.unit = unitSel.value;
+      persistSeaPresets();
+    });
+    var amtInp = document.createElement('input');
+    amtInp.type = 'text';
+    amtInp.className = 'preset-amounts-inp';
+    amtInp.placeholder = '常用分量，逗号分隔，如 5,10,20（留空表示无预设）';
+    amtInp.value = (p.amounts || []).join(',');
+    amtInp.addEventListener('input', function(){
+      p.amounts = parseAmounts(amtInp.value);
+      persistSeaPresets();
+    });
+    amtInp.addEventListener('blur', function(){
+      amtInp.value = (p.amounts || []).join(',');
+    });
     var del = document.createElement('button');
-    del.type = 'button'; del.className = 'del'; del.textContent = '✕';
+    del.type = 'button';
+    del.className = 'del';
+    del.textContent = '✕';
     del.addEventListener('click', function(){
-      var removed = seaPresets[i];
       seaPresets.splice(i, 1);
       persistSeaPresets();
-      if (removed && pickerSelected[removed.name]) delete pickerSelected[removed.name];
       renderPresetManager();
     });
-
-    item.appendChild(nm); item.appendChild(u); item.appendChild(del);
+    item.appendChild(nameInp);
+    item.appendChild(unitSel);
+    item.appendChild(del);
+    item.appendChild(amtInp);
     list.appendChild(item);
   });
 }
 function addPreset(){
   var name = $('#presetNewName').value.trim().slice(0, 12);
   var unit = $('#presetNewUnit').value || '克';
+  var amounts = parseAmounts($('#presetNewAmounts').value);
   if (!name) { toast('请输入调料名称'); return; }
   if (seaPresets.some(function(p){ return p.name === name; })) {
     toast('「' + name + '」已在预设中'); return;
   }
-  seaPresets.push({ name: name, unit: unit });
+  seaPresets.push({ name: name, unit: unit, amounts: amounts });
   persistSeaPresets();
   $('#presetNewName').value = '';
+  $('#presetNewAmounts').value = '';
   renderPresetManager();
   toast('已添加预设「' + name + '」');
   if (window.matchMedia('(min-width: 768px)').matches) { $('#presetNewName').focus(); }
 }
 function resetPresets(){
   if (!confirm('恢复为默认预设调料？当前自定义的预设会被覆盖。')) return;
-  seaPresets = DEFAULT_SEA_PRESETS.map(function(p){ return { name: p.name, unit: p.unit }; });
+  seaPresets = DEFAULT_SEA_PRESETS.map(function(p){
+    return { name: p.name, unit: p.unit, amounts: p.amounts.slice() };
+  });
   persistSeaPresets();
-  pickerSelected = {};
   renderPresetManager();
   toast('已恢复默认预设');
 }
@@ -1966,7 +2226,6 @@ function resetPresets(){
 /* ===================== 事件绑定 ===================== */
 function bindEvents(){
 
-  /* 机型筛选 */
   on('#modelFilter', 'click', function(e){
     var btn = e.target.closest('button[data-model]');
     if (!btn) return;
@@ -1975,7 +2234,6 @@ function bindEvents(){
     renderFilter(); renderGrid();
   });
 
-  /* 搜索 */
   var searchTimer;
   on('#searchInput', 'input', function(e){
     clearTimeout(searchTimer);
@@ -1983,16 +2241,12 @@ function bindEvents(){
     searchTimer = setTimeout(function(){ searchTerm = v; renderGrid(); }, 140);
   });
 
-  /* 卡片点击 → 详情 */
   on('#recipeGrid', 'click', function(e){
     var card = e.target.closest('.card');
     if (card) openDetail(card.dataset.id);
   });
 
-  /* 新增 */
   on('#btnAdd', 'click', function(){ openEdit(null); });
-
-  /* 编辑弹层 */
   on('#btnCloseEdit', 'click', closeEdit);
   on('#btnCancel', 'click', closeEdit);
   on('#btnSave', 'click', saveEdit);
@@ -2009,7 +2263,6 @@ function bindEvents(){
   });
   on('#btnAddSea', 'click', function(){ openSeaPicker(); });
 
-  /* 编辑区输入委托 */
   var editOverlay = $('#editOverlay');
   if (editOverlay) {
     editOverlay.addEventListener('input', function(e){
@@ -2022,7 +2275,6 @@ function bindEvents(){
     });
   }
 
-  /* 标签编辑器 */
   var tagInput = $('#tagEditorInput');
   var tagBox = $('#tagEditor');
   if (tagInput) {
@@ -2045,7 +2297,6 @@ function bindEvents(){
     });
   }
 
-  /* 详情弹层 */
   on('#btnCloseDetail', 'click', closeDetail);
   on('#btnCopyList', 'click', copyList);
   on('#btnClearChecks', 'click', function(){
@@ -2061,7 +2312,6 @@ function bindEvents(){
     setTimeout(function(){ openEdit(id); }, 180);
   });
 
-  /* 设置弹层 */
   on('#btnSync', 'click', openSettings);
   on('#btnCloseSettings', 'click', closeSettings);
   on('#btnCloseSettings2', 'click', closeSettings);
@@ -2082,7 +2332,6 @@ function bindEvents(){
     if (!id) { toast('请填写 Gist ID'); return; }
     syncState.token = token; syncState.gistId = id;
     persistSyncSettings(); refreshSyncButton();
-
     if (syncState.busy) return;
     syncState.busy = true;
     toast('正在验证 Gist…');
@@ -2119,36 +2368,50 @@ function bindEvents(){
     toast('同步设置已清除');
   });
 
-  /* 调料选择弹层 */
+  on('#btnSnapshotNow', 'click', function(){
+    var ok = saveSnapshot('手动');
+    if (ok) { renderSnapshotList(); toast('已手动备份一份'); }
+    else toast('备份失败，localStorage 可能已满');
+  });
+
   on('#btnCloseSeaPicker', 'click', closeSeaPicker);
-  on('#btnCancelSeaPicker', 'click', closeSeaPicker);
-  on('#btnConfirmSeaPicker', 'click', confirmSeaPicker);
+  on('#btnDoneSeaPicker', 'click', closeSeaPicker);
   on('#btnAddCustomSea', 'click', addCustomSea);
   on('#btnManagePresets', 'click', function(){ openPresetManager(); });
   on('#seaCustomName', 'keydown', function(e){
+    if (e.key === 'Enter') { e.preventDefault(); $('#seaCustomAmount').focus(); }
+  });
+  on('#seaCustomAmount', 'keydown', function(e){
     if (e.key === 'Enter') { e.preventDefault(); addCustomSea(); }
   });
 
-  /* 预设管理弹层 */
   on('#btnClosePresetMgr', 'click', closePresetManager);
   on('#btnClosePresetMgr2', 'click', closePresetManager);
   on('#btnAddPreset', 'click', addPreset);
   on('#btnResetPresets', 'click', resetPresets);
   on('#presetNewName', 'keydown', function(e){
+    if (e.key === 'Enter') { e.preventDefault(); $('#presetNewAmounts').focus(); }
+  });
+  on('#presetNewAmounts', 'keydown', function(e){
     if (e.key === 'Enter') { e.preventDefault(); addPreset(); }
   });
 
-  /* ESC 关闭 */
   document.addEventListener('keydown', function(e){
     if (e.key !== 'Escape') return;
-    if ($('#presetManagerOverlay') && $('#presetManagerOverlay').classList.contains('open')) { closePresetManager(); return; }
-    if ($('#seaPickerOverlay') && $('#seaPickerOverlay').classList.contains('open')) { closeSeaPicker(); return; }
-    if ($('#settingsOverlay') && $('#settingsOverlay').classList.contains('open')) { closeSettings(); return; }
-    if ($('#editOverlay') && $('#editOverlay').classList.contains('open')) { closeEdit(); return; }
-    if ($('#detailOverlay') && $('#detailOverlay').classList.contains('open')) { closeDetail(); }
+    var ids = ['presetManagerOverlay','seaPickerOverlay','settingsOverlay','editOverlay','detailOverlay'];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el && el.classList.contains('open')) {
+        if (ids[i] === 'presetManagerOverlay') closePresetManager();
+        else if (ids[i] === 'seaPickerOverlay') closeSeaPicker();
+        else if (ids[i] === 'settingsOverlay') closeSettings();
+        else if (ids[i] === 'editOverlay') closeEdit();
+        else if (ids[i] === 'detailOverlay') closeDetail();
+        return;
+      }
+    }
   });
 
-  /* 文件导入导出 */
   on('#btnExport', 'click', exportData);
   on('#btnImport', 'click', function(){ $('#fileInput').click(); });
   on('#fileInput', 'change', function(e){
@@ -2163,16 +2426,13 @@ function init(){
   try { loadData(); } catch(e){ console.error('[init] loadData 失败', e); }
   try { loadSyncSettings(); } catch(e){ console.error('[init] loadSyncSettings 失败', e); }
   try { loadSeaPresets(); } catch(e){ console.error('[init] loadSeaPresets 失败', e); }
-
   try { bindEvents(); } catch(e){ console.error('[init] bindEvents 失败', e); }
-
   try { renderFilter(); } catch(e){ console.error('[init] renderFilter 失败', e); }
   try { renderTagBar(); } catch(e){ console.error('[init] renderTagBar 失败', e); }
   try { renderGrid(); } catch(e){ console.error('[init] renderGrid 失败', e); }
   try { refreshSyncStatus(); } catch(e){ console.error('[init] refreshSyncStatus 失败', e); }
   try { refreshSyncButton(); } catch(e){ console.error('[init] refreshSyncButton 失败', e); }
 
-  /* 打开页面自动拉取 */
   if (syncState.pullOnLoad && syncState.token && syncState.gistId) {
     setTimeout(function(){ gistPull(true); }, 500);
   }
