@@ -453,9 +453,55 @@ select{
 .inline-add-row select{flex:0 0 auto;width:88px;}
 .inline-add-row button{flex:none;white-space:nowrap;}
 
-.sync-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-@media (max-width:480px){ .sync-buttons{grid-template-columns:1fr;} }
-.sync-buttons button{width:100%;justify-content:center;}
+/* ============ 同步设置面板 ============ */
+.sync-step{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  background:var(--card);
+  margin-bottom:14px;
+}
+.sync-step-head{
+  display:flex;align-items:center;gap:9px;
+  font-size:14px;font-weight:700;
+  margin-bottom:12px;
+}
+.sync-step-num{
+  display:grid;place-items:center;
+  width:22px;height:22px;flex:none;
+  border-radius:50%;
+  background:var(--accent);color:#fff;
+  font-size:12px;font-weight:700;
+}
+.sync-step.done .sync-step-num{background:var(--green);}
+
+.sync-action-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+@media (max-width:520px){ .sync-action-grid{grid-template-columns:1fr;} }
+
+.sync-action-btn{
+  display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--card-2);
+  color:var(--text);
+  cursor:pointer;
+  transition:.15s;
+  text-align:left;
+  font-family:inherit;
+}
+.sync-action-btn:hover{border-color:var(--accent);background:var(--card);}
+.sync-action-btn:active{transform:scale(.98);}
+.sync-action-btn .act-icon{font-size:20px;line-height:1;}
+.sync-action-btn .act-title{font-size:15px;font-weight:700;}
+.sync-action-btn .act-desc{font-size:12px;color:var(--muted);line-height:1.45;}
+.sync-action-btn.upload .act-title{color:var(--accent);}
+.sync-action-btn.download .act-title{color:var(--green);}
+.sync-action-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.sync-action-btn:disabled:hover{border-color:var(--border);background:var(--card-2);}
+
 .switch-row{
   display:flex;align-items:center;gap:11px;padding:11px 13px;
   background:var(--card-2);border:1px solid var(--border);border-radius:11px;
@@ -464,6 +510,7 @@ select{
 .switch-row:hover{border-color:var(--accent);}
 .switch-row:last-child{margin-bottom:0;}
 .switch-row input[type="checkbox"]{width:18px;height:18px;flex:none;accent-color:var(--accent);margin:0;cursor:pointer;}
+
 .sync-status{
   margin-top:2px;padding:12px 14px;border-radius:12px;background:var(--card-2);
   border:1px solid var(--border);font-size:13px;color:var(--muted);
@@ -475,7 +522,6 @@ select{
 .sync-status.warn{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
 .sync-status.warn strong{color:var(--accent);}
 
-/* 快照列表 */
 .snapshot-list{
   display:grid;gap:8px;max-height:280px;overflow-y:auto;
   -webkit-overflow-scrolling:touch;padding:2px;
@@ -531,7 +577,7 @@ select{
   <div class="wrap header-inner">
     <div class="brand"><span class="logo">🍳</span><h1>备菜清单</h1></div>
     <div class="header-actions">
-      <button class="icon-btn" id="btnSync" title="GitHub 同步">
+      <button class="icon-btn" id="btnSync" title="云端备份">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
@@ -675,53 +721,99 @@ select{
   </div>
 </div>
 
-<!-- 设置弹层 -->
+<!-- 云端备份设置弹层 -->
 <div class="overlay" id="settingsOverlay">
   <div class="sheet">
     <div class="sheet-head">
-      <h2>设置 · GitHub 同步</h2>
+      <h2>云端备份</h2>
       <button class="icon-btn" id="btnCloseSettings">✕</button>
     </div>
     <div class="sheet-body">
-      <div class="sec-title">账号与绑定</div>
-      <div class="field">
-        <label class="field-label" for="sToken">GitHub Token</label>
-        <input class="text-input" id="sToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
-        <div class="field-note">需要有 <strong>gist</strong> 权限的 Personal Access Token。仅保存在本机浏览器。</div>
-      </div>
-      <div class="field">
-        <label class="field-label" for="sGistId">Gist ID</label>
-        <input class="text-input" id="sGistId" type="text" placeholder="可留空，点下方按钮自动生成" autocomplete="off" spellcheck="false">
-      </div>
-      <div class="field">
-        <label class="field-label">绑定与同步</label>
-        <div class="sync-buttons">
-          <button type="button" class="ghost-btn" id="btnCreateGist">创建新 Gist 并绑定</button>
-          <button type="button" class="ghost-btn" id="btnBindGist">绑定已有 Gist</button>
-          <button type="button" class="ghost-btn" id="btnPullNow">立即拉取</button>
-          <button type="button" class="ghost-btn" id="btnPushNow">立即推送</button>
-        </div>
-        <div class="field-note">
-          推送前会自动存一份本地快照；如果本地数量骤减，会弹窗确认。拉取只做合并，不会删除本地数据。
-        </div>
-      </div>
-      <div class="sec-title">自动化</div>
-      <label class="switch-row"><input type="checkbox" id="sAutoPush"><span>保存菜谱后自动推送到 Gist</span></label>
-      <label class="switch-row"><input type="checkbox" id="sPullOnLoad"><span>打开页面时自动拉取（静默合并）</span></label>
-      <div class="sec-title">状态</div>
-      <div class="sync-status" id="syncStatus">未配置</div>
 
-      <div class="sec-title">本地备份（防误删）</div>
+      <!-- 步骤 1：连接云端 -->
+      <div class="sync-step" id="step1">
+        <div class="sync-step-head">
+          <span class="sync-step-num">1</span>
+          <span>连接云端</span>
+        </div>
+        <div class="field">
+          <label class="field-label" for="sToken">GitHub Token</label>
+          <input class="text-input" id="sToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+          <div class="field-note">一个能访问 Gist 的 GitHub 令牌，只保存在本机浏览器。</div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="sGistId">云端存储 ID（Gist ID）</label>
+          <input class="text-input" id="sGistId" type="text" placeholder="可留空，点下方按钮自动新建" autocomplete="off" spellcheck="false">
+          <div class="field-note">第一次用可留空，点「新建云端存储」自动生成；其他设备填同一个 ID 即可共享。</div>
+        </div>
+        <div class="sync-action-grid">
+          <button type="button" class="sync-action-btn" id="btnCreateGist">
+            <span class="act-icon">🆕</span>
+            <span class="act-title">新建云端存储</span>
+            <span class="act-desc">第一次使用时创建</span>
+          </button>
+          <button type="button" class="sync-action-btn" id="btnBindGist">
+            <span class="act-icon">🔗</span>
+            <span class="act-title">连接已有存储</span>
+            <span class="act-desc">填入 Gist ID 后点这里</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 步骤 2：手动备份 / 下载 -->
+      <div class="sync-step" id="step2">
+        <div class="sync-step-head">
+          <span class="sync-step-num">2</span>
+          <span>手动备份 / 下载</span>
+        </div>
+        <div class="sync-action-grid">
+          <button type="button" class="sync-action-btn upload" id="btnBackupNow">
+            <span class="act-icon">⬆️</span>
+            <span class="act-title">备份到云端</span>
+            <span class="act-desc">把本机菜谱 + 预设上传，覆盖云端</span>
+          </button>
+          <button type="button" class="sync-action-btn download" id="btnDownloadNow">
+            <span class="act-icon">⬇️</span>
+            <span class="act-title">从云端下载</span>
+            <span class="act-desc">把云端数据合并到本机，不会丢本机数据</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 步骤 3：自动同步 -->
+      <div class="sync-step" id="step3">
+        <div class="sync-step-head">
+          <span class="sync-step-num">3</span>
+          <span>自动同步</span>
+        </div>
+        <label class="switch-row"><input type="checkbox" id="sAutoPush"><span>改完菜谱后，自动备份到云端</span></label>
+        <label class="switch-row"><input type="checkbox" id="sPullOnLoad"><span>打开页面时，自动从云端下载</span></label>
+      </div>
+
+      <!-- 状态 -->
+      <div class="sec-title">状态</div>
+      <div class="sync-status" id="syncStatus">未连接云端</div>
+
+      <!-- 预设单独同步 -->
+      <div class="sec-title">调料预设</div>
+      <div class="sync-status" id="presetStatus">加载中…</div>
+      <div class="field" style="margin-top:10px;margin-bottom:0">
+        <button type="button" class="ghost-btn full" id="btnSyncPresetsFromCloud">仅从云端下载预设（覆盖本机预设）</button>
+      </div>
+
+      <!-- 本地备份 -->
+      <div class="sec-title">本机快照（防误删）</div>
       <div class="snap-warn">
-        🛡️ 每次推送前自动存一份快照，最多 10 份。误删后可以从这里恢复。
+        🛡️ 每次备份到云端前，会自动在本机存一份快照，最多 10 份。误删后可以从这里恢复。
       </div>
       <div class="snapshot-list" id="snapshotList"></div>
       <div class="field" style="margin-top:10px;margin-bottom:0">
-        <button type="button" class="ghost-btn full" id="btnSnapshotNow">立即手动备份一份</button>
+        <button type="button" class="ghost-btn full" id="btnSnapshotNow">立即手动存一份快照</button>
       </div>
+
     </div>
     <div class="sheet-foot">
-      <button class="ghost-btn" id="btnClearSync">清除同步设置</button>
+      <button class="ghost-btn" id="btnClearSync">断开云端</button>
       <button class="ghost-btn" id="btnCloseSettings2">关闭</button>
       <button class="primary-btn" id="btnSaveSettings">保存设置</button>
     </div>
@@ -748,7 +840,7 @@ select{
           <input class="text-input" id="seaCustomAmount" type="text" inputMode="decimal" placeholder="分量" autocomplete="off" style="flex:0 0 80px;width:80px">
           <button type="button" class="ghost-btn" id="btnAddCustomSea">添加</button>
         </div>
-        <div class="field-note">临时添加的调料不会保存到预设里。</div>
+        <div class="field-note">临时添加的调料不会保存到预设里，默认单位为克。</div>
       </div>
     </div>
     <div class="sheet-foot">
@@ -770,7 +862,7 @@ select{
       <div class="field">
         <label class="field-label">已有预设<span id="presetCount" style="font-weight:400;opacity:.7"></span></label>
         <div class="preset-manage-list" id="presetManageList"></div>
-        <div class="field-note">可直接修改名称、单位、常用分量；分量用逗号分隔，如 <strong>5,10,20</strong>。</div>
+        <div class="field-note">可直接修改名称、单位、常用分量；分量用逗号分隔，如 <strong>5,10,20</strong>。修改会随云端备份一起上传。</div>
       </div>
       <div class="field">
         <label class="field-label">添加新预设</label>
@@ -782,10 +874,12 @@ select{
           <input class="text-input" id="presetNewAmounts" type="text" placeholder="常用分量，逗号分隔。如 5,10,20" autocomplete="off">
           <button type="button" class="primary-btn" id="btnAddPreset">添加</button>
         </div>
+        <div class="field-note">新建预设默认单位为克。</div>
       </div>
     </div>
     <div class="sheet-foot">
       <button class="ghost-btn" id="btnResetPresets">恢复默认</button>
+      <button class="ghost-btn" id="btnPushPresetsNow" style="color:var(--accent)">保存并备份到云端</button>
       <span style="flex:1"></span>
       <button class="primary-btn" id="btnClosePresetMgr2">完成</button>
     </div>
@@ -833,17 +927,17 @@ var DEFAULT_SEA_PRESETS = [
   { name:'食用油', unit:'克', amounts:['10','20','30'] },
   { name:'盐',     unit:'克', amounts:['2','3','5'] },
   { name:'白糖',   unit:'克', amounts:['5','10','15'] },
-  { name:'生抽',   unit:'勺', amounts:['5','10','15'] },
-  { name:'老抽',   unit:'勺', amounts:['3','5','10'] },
-  { name:'蚝油',   unit:'勺', amounts:['5','10','15'] },
-  { name:'料酒',   unit:'勺', amounts:['5','10','15'] },
-  { name:'醋',     unit:'勺', amounts:['5','10','15'] },
+  { name:'生抽',   unit:'克', amounts:['5','10','15'] },
+  { name:'老抽',   unit:'克', amounts:['3','5','10'] },
+  { name:'蚝油',   unit:'克', amounts:['5','10','15'] },
+  { name:'料酒',   unit:'克', amounts:['5','10','15'] },
+  { name:'醋',     unit:'克', amounts:['5','10','15'] },
   { name:'胡椒粉', unit:'克', amounts:['1','2','3'] },
   { name:'淀粉',   unit:'克', amounts:['5','10','15'] },
-  { name:'香油',   unit:'勺', amounts:['3','5','10'] },
-  { name:'蒜',     unit:'瓣', amounts:['1','2','3'] },
-  { name:'姜',     unit:'片', amounts:['2','3','5'] },
-  { name:'葱',     unit:'根', amounts:['1','2','3'] }
+  { name:'香油',   unit:'克', amounts:['3','5','10'] },
+  { name:'蒜',     unit:'克', amounts:['5','10','15'] },
+  { name:'姜',     unit:'克', amounts:['5','10','15'] },
+  { name:'葱',     unit:'克', amounts:['5','10','15'] }
 ];
 
 /* ===================== 状态 ===================== */
@@ -867,7 +961,7 @@ var autoPushTimer = null;
 var seaPresets = [];
 
 var syncState = {
-  token: '', gistId: '', autoPush: true, pullOnLoad: false, lastSync: 0, busy: false
+  token: '', gistId: '', autoPush: true, pullOnLoad: true, lastSync: 0, busy: false
 };
 
 /* ===================== 工具 ===================== */
@@ -931,7 +1025,7 @@ function toast(msg){
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2200);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2600);
 }
 function isSea(i){ return i && i.cat === CAT_SEA; }
 function isIng(i){ return !i || i.cat !== CAT_SEA; }
@@ -946,7 +1040,7 @@ function fillUnitSelect(sel, current){
   });
 }
 
-/* ===================== 快照（防误删） ===================== */
+/* ===================== 快照 ===================== */
 function loadSnapshots(){
   try {
     var raw = localStorage.getItem(SNAPSHOT_KEY);
@@ -956,7 +1050,6 @@ function loadSnapshots(){
   } catch(e) { return []; }
 }
 function persistSnapshots(snaps){
-  /* 逐份缩减，直到能存下为止 */
   var list = snaps.slice();
   while (list.length > 0) {
     try {
@@ -993,17 +1086,14 @@ function restoreSnapshot(index){
     '菜谱数：' + s.count + '\n\n' +
     '当前数据会被覆盖（覆盖前会自动再存一份快照）。'
   )) return;
-
-  /* 恢复前先存当前状态 */
   saveSnapshot('恢复前');
-
   recipes = (s.data || []).map(normalizeRecipe).filter(Boolean);
   persist();
   renderTagBar();
   renderGrid();
   renderSnapshotList();
   toast('已恢复到 ' + fmtTime(s.time) + ' 的快照');
-  scheduleAutoPush();
+  scheduleAutoBackup();
 }
 function deleteSnapshot(index){
   var snaps = loadSnapshots();
@@ -1013,30 +1103,21 @@ function deleteSnapshot(index){
   persistSnapshots(snaps);
   renderSnapshotList();
 }
-function clearAllSnapshots(){
-  if (!confirm('清空全部本地快照？此操作不可撤销。')) return;
-  try { localStorage.removeItem(SNAPSHOT_KEY); } catch(e){}
-  renderSnapshotList();
-  toast('已清空快照');
-}
 function renderSnapshotList(){
   var list = $('#snapshotList');
   if (!list) return;
   list.innerHTML = '';
-
   var snaps = loadSnapshots();
   if (!snaps.length) {
     var d = document.createElement('div');
     d.className = 'preset-empty';
-    d.textContent = '还没有快照。点下方「立即手动备份一份」生成第一份。';
+    d.textContent = '还没有快照。点下方「立即手动存一份快照」生成第一份。';
     list.appendChild(d);
     return;
   }
-
   snaps.forEach(function(s, i){
     var item = document.createElement('div');
     item.className = 'snapshot-item';
-
     var info = document.createElement('div');
     info.className = 'snap-info';
     var t = document.createElement('span');
@@ -1044,25 +1125,19 @@ function renderSnapshotList(){
     var m = document.createElement('span');
     m.className = 'snap-meta';
     m.textContent = s.count + ' 个菜谱 · ' + (s.reason || '');
-    info.appendChild(t);
-    info.appendChild(m);
-
+    info.appendChild(t); info.appendChild(m);
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'snap-restore';
     btn.textContent = '恢复';
     btn.addEventListener('click', function(){ restoreSnapshot(i); });
-
     var del = document.createElement('button');
     del.type = 'button';
     del.className = 'snap-del';
     del.textContent = '✕';
     del.title = '删除这份快照';
     del.addEventListener('click', function(){ deleteSnapshot(i); });
-
-    item.appendChild(info);
-    item.appendChild(btn);
-    item.appendChild(del);
+    item.appendChild(info); item.appendChild(btn); item.appendChild(del);
     list.appendChild(item);
   });
 }
@@ -1092,10 +1167,11 @@ function loadSeaPresets(){
   seaPresets = DEFAULT_SEA_PRESETS.map(function(p){
     return { name: p.name, unit: p.unit, amounts: p.amounts.slice() };
   });
-  persistSeaPresets();
+  persistSeaPresets(true);
 }
-function persistSeaPresets(){
+function persistSeaPresets(skipPush){
   try { localStorage.setItem(SEA_PRESETS_KEY, JSON.stringify(seaPresets)); } catch(e){}
+  if (!skipPush) scheduleAutoBackup();
 }
 
 /* ===================== 数据规范化 ===================== */
@@ -1103,12 +1179,10 @@ function normalizeRecipe(r){
   if (!r || typeof r !== 'object') return null;
   var models = Array.isArray(r.models) ? r.models.filter(function(m){ return m === 'pro' || m === 'mini'; }) : [];
   r.models = models.length ? models : ['pro','mini'];
-
   r.name = String(r.name || '').trim();
   r.note = String(r.note || '');
   r.duration = String(r.duration == null ? '' : r.duration).trim();
   r.tags = normalizeTags(r.tags);
-
   var raw = Array.isArray(r.ingredients) ? r.ingredients : [];
   r.ingredients = raw.map(function(i){
     return {
@@ -1119,7 +1193,6 @@ function normalizeRecipe(r){
       cat:  (i && i.cat === CAT_SEA) ? CAT_SEA : CAT_ING
     };
   }).filter(function(i){ return i.name; });
-
   r.id = r.id || uid();
   r.createdAt = r.createdAt || Date.now();
   r.updatedAt = r.updatedAt || Date.now();
@@ -1185,13 +1258,15 @@ function saveTagFilter(){
   try { localStorage.setItem(TAG_FILTER_KEY, filterTag); } catch(e){}
 }
 
-/* ===================== 同步设置 ===================== */
+/* ===================== 云端设置 ===================== */
 function loadSyncSettings(){
   try {
     syncState.token      = localStorage.getItem(GH_TOKEN_KEY) || '';
     syncState.gistId     = localStorage.getItem(GH_GIST_KEY)  || '';
-    syncState.autoPush   = localStorage.getItem(GH_AUTO_KEY)  !== '0';
-    syncState.pullOnLoad = localStorage.getItem(GH_PULL_KEY)  === '1';
+    var auto = localStorage.getItem(GH_AUTO_KEY);
+    syncState.autoPush   = (auto === null) ? true : (auto === '1');
+    var pull = localStorage.getItem(GH_PULL_KEY);
+    syncState.pullOnLoad = (pull === null) ? true : (pull === '1');
     syncState.lastSync   = parseInt(localStorage.getItem(GH_LAST_KEY) || '0', 10) || 0;
   } catch(e){}
 }
@@ -1208,20 +1283,27 @@ function refreshSyncStatus(){
   var el = $('#syncStatus');
   if (!el) return;
   el.classList.remove('ok','warn');
-  if (!syncState.token) {
+  var s1 = $('#step1');
+  var s2 = $('#step2');
+  var s3 = $('#step3');
+
+  if (!syncState.token || !syncState.gistId) {
     el.classList.add('warn');
-    el.innerHTML = '未配置。填写 GitHub Token，点「创建新 Gist 并绑定」即可开始云端同步。';
+    el.textContent = '未连接云端。填写 Token 和 Gist ID 后，点「新建云端存储」或「连接已有存储」。';
+    if (s1) s1.classList.remove('done');
+    if (s2) s2.classList.remove('done');
+    if (s3) s3.classList.remove('done');
     return;
   }
-  if (!syncState.gistId) {
-    el.classList.add('warn');
-    el.innerHTML = 'Token 已填写，但尚未绑定 Gist。点「创建新 Gist 并绑定」自动生成，或填入已有 Gist ID 后点「绑定已有 Gist」。';
-    return;
-  }
+
+  if (s1) s1.classList.add('done');
+  if (s2) s2.classList.add('done');
+  if (s3) s3.classList.add('done');
+
   el.classList.add('ok');
   var idShort = syncState.gistId.slice(0, 10) + '…';
-  var last = syncState.lastSync ? fmtTime(syncState.lastSync) : '从未同步';
-  el.innerHTML = '已绑定 Gist：<strong>' + esc(idShort) + '</strong><br>上次成功同步：<strong>' + esc(last) + '</strong>';
+  var last = syncState.lastSync ? fmtTime(syncState.lastSync) : '还没有备份过';
+  el.innerHTML = '已连接云端：<strong>' + esc(idShort) + '</strong><br>上次成功同步：<strong>' + esc(last) + '</strong>';
 }
 function refreshSyncButton(){
   var b = $('#btnSync');
@@ -1229,16 +1311,36 @@ function refreshSyncButton(){
   if (syncState.token && syncState.gistId) b.classList.add('synced');
   else b.classList.remove('synced');
 }
+function renderPresetStatus(){
+  var el = $('#presetStatus');
+  if (!el) return;
+  el.classList.remove('ok','warn');
+  var n = seaPresets.length;
+  if (!n) {
+    el.classList.add('warn');
+    el.textContent = '本机没有预设';
+    return;
+  }
+  var names = seaPresets.slice(0, 6).map(function(p){ return p.name; }).join('、');
+  if (n > 6) names += ' 等';
+  el.textContent = '本机预设：' + n + ' 项（' + names + '）';
+}
 
 /* ===================== GitHub API ===================== */
 function buildSyncPayload(){
-  return { app: 'beicai', version: 1, updatedAt: Date.now(), recipes: recipes };
+  return {
+    app: 'beicai',
+    version: 2,
+    updatedAt: Date.now(),
+    recipes: recipes,
+    seaPresets: seaPresets
+  };
 }
-function gistCreate(){
+function createCloudStorage(){
   if (!syncState.token) { toast('请先填写 Token'); return; }
   if (syncState.busy) return;
   syncState.busy = true;
-  toast('正在创建 Gist…');
+  toast('正在新建云端存储…');
   var files = {}; files[GIST_FILENAME] = { content: JSON.stringify(buildSyncPayload(), null, 2) };
   fetch('https://api.github.com/gists', {
     method: 'POST',
@@ -1257,14 +1359,13 @@ function gistCreate(){
     persistSyncSettings();
     var inp = $('#sGistId'); if (inp) inp.value = data.id;
     refreshSyncStatus(); refreshSyncButton();
-    toast('已创建 Gist 并绑定');
+    toast('云端存储已创建');
   }).catch(function(err){
-    toast('创建失败：' + err.message);
+    toast('新建失败：' + err.message);
   }).then(function(){ syncState.busy = false; });
 }
 
-/* 拉取云端数据（返回 Promise<Array>） */
-function fetchRemoteRecipes(){
+function fetchRemoteData(){
   if (!syncState.token || !syncState.gistId) return Promise.resolve(null);
   return fetch('https://api.github.com/gists/' + syncState.gistId, {
     headers: {
@@ -1283,48 +1384,70 @@ function fetchRemoteRecipes(){
         if (keys.length) fileContent = data.files[keys[0]].content;
       }
     }
-    if (!fileContent) return [];
+    if (!fileContent) return { recipes: [], seaPresets: [] };
     var parsed;
-    try { parsed = JSON.parse(fileContent); } catch(e){ return []; }
+    try { parsed = JSON.parse(fileContent); } catch(e){ return { recipes: [], seaPresets: [] }; }
+
     var remoteRecipes = [];
     if (Array.isArray(parsed)) remoteRecipes = parsed;
     else if (parsed && Array.isArray(parsed.recipes)) remoteRecipes = parsed.recipes;
-    return remoteRecipes.map(normalizeRecipe).filter(Boolean);
+
+    var remotePresets = [];
+    if (parsed && Array.isArray(parsed.seaPresets) && parsed.seaPresets.length) {
+      remotePresets = parsed.seaPresets.map(normalizePreset).filter(Boolean);
+    }
+
+    return {
+      recipes: remoteRecipes.map(normalizeRecipe).filter(Boolean),
+      seaPresets: remotePresets
+    };
   });
 }
 
-/* 推送（带安全保护） */
-function gistPush(silent){
+function applyRemotePresets(remotePresets){
+  if (!remotePresets || !remotePresets.length) return false;
+  var before = JSON.stringify(seaPresets);
+  var after = JSON.stringify(remotePresets);
+  if (before === after) return false;
+
+  seaPresets = remotePresets.slice();
+  persistSeaPresets(true);
+
+  var pmOverlay = $('#presetManagerOverlay');
+  if (pmOverlay && pmOverlay.classList.contains('open')) renderPresetManager();
+  var spOverlay = $('#seaPickerOverlay');
+  if (spOverlay && spOverlay.classList.contains('open')) renderSeaPicker();
+  renderPresetStatus();
+  return true;
+}
+
+/* 备份到云端 */
+function backupToCloud(silent){
   if (!syncState.token || !syncState.gistId) {
-    if (!silent) toast('请先配置 Token 和 Gist ID');
+    if (!silent) toast('请先连接云端');
     return Promise.resolve(false);
   }
   if (syncState.busy) return Promise.resolve(false);
   syncState.busy = true;
 
-  /* 先拉云端做对比 */
-  return fetchRemoteRecipes().then(function(remoteRecipes){
-    /* 数量骤减保护：仅针对用户手动推送；自动静默推送时如果骤减也保护 */
-    if (remoteRecipes && remoteRecipes.length >= 3) {
-      var remoteCount = remoteRecipes.length;
+  return fetchRemoteData().then(function(remote){
+    if (remote && remote.recipes && remote.recipes.length >= 3) {
+      var remoteCount = remote.recipes.length;
       var localCount = recipes.length;
-      /* 本地数量少于云端的 50% 时认为可能误删 */
       if (localCount < remoteCount * 0.5) {
-        /* 静默推送时：不自动覆盖，改为合并（保留云端） */
         if (silent) {
-          /* 静默场景下自动合并，防止误删数据被覆盖 */
-          recipes = mergeRecipes(recipes, remoteRecipes);
+          recipes = mergeRecipes(recipes, remote.recipes);
           persist();
           renderTagBar();
           renderGrid();
         } else {
           var ok = confirm(
-            '⚠️ 推送前提醒\n\n' +
-            '本地菜谱数量：' + localCount + '\n' +
+            '⚠️ 备份前提醒\n\n' +
+            '本机菜谱数量：' + localCount + '\n' +
             '云端菜谱数量：' + remoteCount + '\n\n' +
-            '本地数量明显少于云端，可能是误删。\n\n' +
-            '点「确定」继续推送（云端会被本地覆盖，但推送前会存快照）\n' +
-            '点「取消」放弃本次推送，先去检查'
+            '本机数量明显少于云端，可能是误删。\n\n' +
+            '点「确定」继续备份（云端会被本机覆盖，但备份前会存快照）\n' +
+            '点「取消」放弃本次备份，先去检查'
           );
           if (!ok) {
             syncState.busy = false;
@@ -1333,23 +1456,18 @@ function gistPush(silent){
         }
       }
     }
-
-    /* 推送前存快照 */
-    saveSnapshot(silent ? '自动推送前' : '推送前');
-
-    /* 实际推送 */
-    return doPushRemote();
-  }).catch(function(err){
-    /* 拉取失败（可能是第一次推送，或网络问题），依旧存快照 + 推送 */
-    saveSnapshot(silent ? '自动推送前' : '推送前');
-    return doPushRemote();
+    saveSnapshot(silent ? '自动备份前' : '手动备份前');
+    return doBackupRemote(silent);
+  }).catch(function(){
+    saveSnapshot(silent ? '自动备份前' : '手动备份前');
+    return doBackupRemote(silent);
   }).then(function(r){
     syncState.busy = false;
     return r;
   });
 }
 
-function doPushRemote(){
+function doBackupRemote(silent){
   var body = {}; body[GIST_FILENAME] = { content: JSON.stringify(buildSyncPayload(), null, 2) };
   return fetch('https://api.github.com/gists/' + syncState.gistId, {
     method: 'PATCH',
@@ -1363,39 +1481,48 @@ function doPushRemote(){
     if (!res.ok) return res.json().then(function(j){ throw new Error(j.message || ('HTTP ' + res.status)); });
     syncState.lastSync = Date.now();
     persistSyncSettings(); refreshSyncStatus();
-    if (!arguments.callee.silent) toast('已推送到 Gist');
+    if (!silent) toast('已备份到云端（' + recipes.length + ' 菜谱 + ' + seaPresets.length + ' 预设）');
     return true;
+  }).catch(function(err){
+    if (!silent) toast('备份失败：' + err.message);
+    return false;
   });
 }
 
-/* 拉取（合并式，不删除本地） */
-function gistPull(silent){
+/* 从云端下载 */
+function downloadFromCloud(silent){
   if (!syncState.token || !syncState.gistId) {
-    if (!silent) toast('请先配置 Token 和 Gist ID');
+    if (!silent) toast('请先连接云端');
     return Promise.resolve(false);
   }
   if (syncState.busy) return Promise.resolve(false);
   syncState.busy = true;
 
-  return fetchRemoteRecipes().then(function(cleaned){
-    if (cleaned === null) throw new Error('无法读取云端数据');
+  return fetchRemoteData().then(function(remote){
+    if (!remote) throw new Error('无法读取云端数据');
+
     var beforeCount = recipes.length;
-    recipes = mergeRecipes(recipes, cleaned);
+    recipes = mergeRecipes(recipes, remote.recipes);
     persist();
     renderTagBar(); renderGrid();
+
+    var presetChanged = applyRemotePresets(remote.seaPresets);
 
     syncState.lastSync = Date.now();
     persistSyncSettings(); refreshSyncStatus();
 
     if (!silent) {
       var added = Math.max(0, recipes.length - beforeCount);
-      toast(added > 0
-        ? ('已拉取并合并，新增 ' + added + ' 个菜谱')
-        : '已拉取并合并（云端无新增）');
+      var parts = [];
+      parts.push(added > 0 ? ('新增 ' + added + ' 个菜谱') : '菜谱无变化');
+      if (presetChanged) parts.push('预设已更新为 ' + seaPresets.length + ' 项');
+      else if (remote.seaPresets && remote.seaPresets.length) parts.push('预设已是最新');
+      else parts.push('云端没有预设数据');
+      toast('已从云端下载：' + parts.join('；'));
     }
     return true;
   }).catch(function(err){
-    if (!silent) toast('拉取失败：' + err.message);
+    if (!silent) toast('下载失败：' + err.message);
     return false;
   }).then(function(r){
     syncState.busy = false;
@@ -1403,7 +1530,6 @@ function gistPull(silent){
   });
 }
 
-/* 合并规则：同 ID 取 updatedAt 较新的一条；本地独有的保留，云端独有的也加入 */
 function mergeRecipes(localList, remoteList){
   var map = {};
   (localList || []).forEach(function(r){ map[r.id] = r; });
@@ -1419,11 +1545,40 @@ function mergeRecipes(localList, remoteList){
   });
 }
 
-function scheduleAutoPush(){
+function scheduleAutoBackup(){
   if (!syncState.autoPush) return;
   if (!syncState.token || !syncState.gistId) return;
   clearTimeout(autoPushTimer);
-  autoPushTimer = setTimeout(function(){ gistPush(true); }, 900);
+  autoPushTimer = setTimeout(function(){ backupToCloud(true); }, 900);
+}
+
+/* 仅从云端下载预设 */
+function downloadPresetsFromCloud(){
+  if (!syncState.token || !syncState.gistId) {
+    toast('请先连接云端');
+    return;
+  }
+  if (syncState.busy) return;
+  syncState.busy = true;
+  toast('正在从云端下载预设…');
+  fetchRemoteData().then(function(remote){
+    if (!remote || !remote.seaPresets || !remote.seaPresets.length) {
+      toast('云端没有预设数据，请先在另一台设备点一次「备份到云端」');
+      return false;
+    }
+    seaPresets = remote.seaPresets.slice();
+    persistSeaPresets(true);
+    renderPresetStatus();
+    renderPresetManager();
+    renderSeaPicker();
+    toast('预设已下载（' + seaPresets.length + ' 项）');
+    return true;
+  }).catch(function(err){
+    toast('下载失败：' + err.message);
+    return false;
+  }).then(function(){
+    syncState.busy = false;
+  });
 }
 
 /* ===================== 设置弹层 ===================== */
@@ -1433,6 +1588,7 @@ function openSettings(){
   $('#sAutoPush').checked = syncState.autoPush;
   $('#sPullOnLoad').checked = syncState.pullOnLoad;
   refreshSyncStatus();
+  renderPresetStatus();
   renderSnapshotList();
   $('#settingsOverlay').classList.add('open');
   lockScroll();
@@ -1770,7 +1926,6 @@ function saveEdit(){
     };
   }).filter(function(i){ return i.name; });
   if (!items.length) { toast('请至少添加一样食材或调料'); return; }
-
   var data = {
     name: name,
     duration: $('#fDuration').value.trim(),
@@ -1780,7 +1935,6 @@ function saveEdit(){
     note: $('#fNote').value.trim(),
     updatedAt: Date.now()
   };
-
   if (editingId) {
     for (var i = 0; i < recipes.length; i++) {
       if (recipes[i].id === editingId) { Object.assign(recipes[i], data); break; }
@@ -1791,7 +1945,7 @@ function saveEdit(){
   persist();
   closeEdit();
   renderTagBar(); renderGrid();
-  scheduleAutoPush();
+  scheduleAutoBackup();
   toast(editingId ? '已更新' : '已添加');
 }
 function deleteRecipe(){
@@ -1799,12 +1953,12 @@ function deleteRecipe(){
   var r = null;
   for (var i = 0; i < recipes.length; i++) if (recipes[i].id === editingId) { r = recipes[i]; break; }
   if (!r) return;
-  if (!confirm('确定删除「' + r.name + '」吗？此操作不可撤销。\n\n（推送前会自动存快照，可在设置 → 本地备份里找回）')) return;
+  if (!confirm('确定删除「' + r.name + '」吗？此操作不可撤销。\n\n（备份到云端前会自动存快照，可在设置 → 本机快照里找回）')) return;
   recipes = recipes.filter(function(x){ return x.id !== editingId; });
   persist();
   closeEdit();
   renderTagBar(); renderGrid();
-  scheduleAutoPush();
+  scheduleAutoBackup();
   toast('已删除');
 }
 
@@ -1864,7 +2018,6 @@ function renderDetail(){
       sw.appendChild(b);
     });
   } else { sw.hidden = true; }
-
   var checked = getChecked(r);
   var ingEntries = [], seaEntries = [];
   (r.ingredients || []).forEach(function(ing, idx){
@@ -1873,7 +2026,6 @@ function renderDetail(){
   var colIng = $('#dColIng'), colSea = $('#dColSea');
   colIng.hidden = ingEntries.length === 0;
   colSea.hidden = seaEntries.length === 0;
-
   function fill(ul, entries){
     ul.innerHTML = '';
     entries.forEach(function(item){
@@ -1989,7 +2141,7 @@ function importData(file){
     });
     persist();
     renderTagBar(); renderGrid();
-    scheduleAutoPush();
+    scheduleAutoBackup();
     toast(added ? ('成功导入 ' + added + ' 个菜谱') : '没有可导入的菜谱');
   };
   reader.readAsText(file);
@@ -2054,7 +2206,6 @@ function renderSeaPicker(){
     u.className = 'preset-block-unit'; u.textContent = p.unit || '克';
     head.appendChild(nm); head.appendChild(u);
     block.appendChild(head);
-
     var row = document.createElement('div');
     row.className = 'preset-amount-row';
     var amounts = Array.isArray(p.amounts) ? p.amounts : [];
@@ -2067,7 +2218,6 @@ function renderSeaPicker(){
       row.appendChild(btn);
     });
     block.appendChild(row);
-
     var customRow = document.createElement('div');
     customRow.className = 'preset-custom-row';
     var cInp = document.createElement('input');
@@ -2131,6 +2281,7 @@ function closePresetManager(){
   $('#presetManagerOverlay').classList.remove('open');
   unlockScroll();
   renderSeaPicker();
+  renderPresetStatus();
 }
 function renderPresetManager(){
   var list = $('#presetManageList');
@@ -2323,7 +2474,7 @@ function bindEvents(){
   on('#btnCreateGist', 'click', function(){
     syncState.token = $('#sToken').value.trim() || syncState.token;
     persistSyncSettings();
-    gistCreate();
+    createCloudStorage();
   });
   on('#btnBindGist', 'click', function(){
     var token = $('#sToken').value.trim();
@@ -2334,44 +2485,45 @@ function bindEvents(){
     persistSyncSettings(); refreshSyncButton();
     if (syncState.busy) return;
     syncState.busy = true;
-    toast('正在验证 Gist…');
+    toast('正在连接云端…');
     fetch('https://api.github.com/gists/' + id, {
       headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' }
     }).then(function(res){
       if (!res.ok) return res.json().then(function(j){ throw new Error(j.message || ('HTTP ' + res.status)); });
       refreshSyncStatus();
-      toast('绑定成功');
+      toast('已连接云端，可点「从云端下载」同步数据');
     }).catch(function(err){
       syncState.gistId = '';
       persistSyncSettings(); refreshSyncStatus(); refreshSyncButton();
-      toast('绑定失败：' + err.message);
+      toast('连接失败：' + err.message);
     }).then(function(){ syncState.busy = false; });
   });
-  on('#btnPullNow', 'click', function(){
+  on('#btnBackupNow', 'click', function(){
     syncState.token = $('#sToken').value.trim() || syncState.token;
     syncState.gistId = $('#sGistId').value.trim() || syncState.gistId;
     persistSyncSettings(); refreshSyncButton();
-    gistPull(false);
+    backupToCloud(false);
   });
-  on('#btnPushNow', 'click', function(){
+  on('#btnDownloadNow', 'click', function(){
     syncState.token = $('#sToken').value.trim() || syncState.token;
     syncState.gistId = $('#sGistId').value.trim() || syncState.gistId;
     persistSyncSettings(); refreshSyncButton();
-    gistPush(false);
+    downloadFromCloud(false);
   });
+  on('#btnSyncPresetsFromCloud', 'click', downloadPresetsFromCloud);
   on('#btnClearSync', 'click', function(){
-    if (!confirm('清除本机保存的 Token、Gist ID 和同步设置？（不会删除云端数据）')) return;
+    if (!confirm('断开云端连接？\n\n只会清除本机保存的 Token、Gist ID，不会删除云端数据。')) return;
     syncState.token = ''; syncState.gistId = ''; syncState.lastSync = 0;
     persistSyncSettings();
     $('#sToken').value = ''; $('#sGistId').value = '';
     refreshSyncStatus(); refreshSyncButton();
-    toast('同步设置已清除');
+    toast('已断开云端');
   });
 
   on('#btnSnapshotNow', 'click', function(){
     var ok = saveSnapshot('手动');
-    if (ok) { renderSnapshotList(); toast('已手动备份一份'); }
-    else toast('备份失败，localStorage 可能已满');
+    if (ok) { renderSnapshotList(); toast('已手动存一份快照'); }
+    else toast('保存失败，localStorage 可能已满');
   });
 
   on('#btnCloseSeaPicker', 'click', closeSeaPicker);
@@ -2389,6 +2541,14 @@ function bindEvents(){
   on('#btnClosePresetMgr2', 'click', closePresetManager);
   on('#btnAddPreset', 'click', addPreset);
   on('#btnResetPresets', 'click', resetPresets);
+  on('#btnPushPresetsNow', 'click', function(){
+    persistSeaPresets(true);
+    if (!syncState.token || !syncState.gistId) {
+      toast('请先在云端备份设置里连接云端');
+      return;
+    }
+    backupToCloud(false);
+  });
   on('#presetNewName', 'keydown', function(e){
     if (e.key === 'Enter') { e.preventDefault(); $('#presetNewAmounts').focus(); }
   });
@@ -2432,9 +2592,11 @@ function init(){
   try { renderGrid(); } catch(e){ console.error('[init] renderGrid 失败', e); }
   try { refreshSyncStatus(); } catch(e){ console.error('[init] refreshSyncStatus 失败', e); }
   try { refreshSyncButton(); } catch(e){ console.error('[init] refreshSyncButton 失败', e); }
+  try { renderPresetStatus(); } catch(e){ console.error('[init] renderPresetStatus 失败', e); }
 
+  /* 打开页面时自动从云端下载（含预设） */
   if (syncState.pullOnLoad && syncState.token && syncState.gistId) {
-    setTimeout(function(){ gistPull(true); }, 500);
+    setTimeout(function(){ downloadFromCloud(true); }, 500);
   }
 }
 
