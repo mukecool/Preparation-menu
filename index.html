@@ -276,6 +276,23 @@ button{font-family:inherit;}
 .progress-fill{height:100%;width:0;border-radius:99px;background:var(--accent);transition:width .25s ease;}
 .progress-text{font-size:12.5px;color:var(--muted);flex:none;font-variant-numeric:tabular-nums;}
 
+/* ====== 详情页备注区 ====== */
+.fs-note{
+  flex:none;margin:0 20px 12px;padding:10px 14px;
+  background:var(--warn-soft);border:1px solid var(--warn);
+  border-radius:12px;font-size:13.5px;line-height:1.65;color:var(--text);
+  max-height:30vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.fs-note[hidden]{display:none;}
+.fs-note-label{
+  display:block;margin-bottom:5px;
+  font-size:11.5px;font-weight:700;letter-spacing:.6px;color:var(--warn);
+}
+.fs-note-text{white-space:pre-wrap;word-break:break-word;}
+@media (max-width:760px){
+  .fs-note{margin:0 12px 8px;padding:9px 12px;font-size:13px;}
+}
+
 .sheet-head{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:18px 20px 14px;flex:none;
@@ -706,6 +723,11 @@ select{
         <div class="fs-col-head"><span>🧂 调料</span><span class="cnt" id="dCountSea"></span></div>
         <ul class="fs-list" id="dListSea"></ul>
       </section>
+    </div>
+    <!-- 新增：备注区 -->
+    <div class="fs-note" id="dNoteBox" hidden>
+      <span class="fs-note-label">📝 备注 / 做法</span>
+      <div class="fs-note-text" id="dNote"></div>
     </div>
     <footer class="fs-foot">
       <div class="progress-wrap">
@@ -1661,6 +1683,7 @@ function getFiltered(){
     if (!q) return true;
     if ((r.name || '').toLowerCase().indexOf(q) !== -1) return true;
     if ((r.tags || []).some(function(t){ return t.toLowerCase().indexOf(q) !== -1; })) return true;
+    if ((r.note || '').toLowerCase().indexOf(q) !== -1) return true;
     return (r.ingredients || []).some(function(i){ return (i.name || '').toLowerCase().indexOf(q) !== -1; });
   });
 }
@@ -2047,6 +2070,20 @@ function renderDetail(){
   }
   fill($('#dListIng'), ingEntries);
   fill($('#dListSea'), seaEntries);
+
+  /* === 新增：渲染备注 / 做法 === */
+  var noteBox  = $('#dNoteBox');
+  var noteText = (r.note || '').trim();
+  if (noteBox) {
+    if (noteText) {
+      noteBox.hidden = false;
+      $('#dNote').textContent = noteText;
+    } else {
+      noteBox.hidden = true;
+      $('#dNote').textContent = '';
+    }
+  }
+
   updateProgress(r);
 }
 function updateProgress(r){
